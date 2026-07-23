@@ -1,7 +1,12 @@
 import axios from 'axios'
 
+// Lokal dev: vite proxy orqali "/api" ishlaydi (vite.config.ts -> VITE_BACKEND_URL).
+// Production (Render): admin panel backend'dan ALOHIDA domenda tursa, build
+// vaqtida VITE_API_URL to'liq manzil bilan o'rnatiladi (.env.production'ga qarang).
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE,
 })
 
 api.interceptors.request.use((config) => {
