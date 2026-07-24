@@ -130,11 +130,13 @@ async function confirmReject() {
         </div>
       </section>
 
-      <section v-if="app.login || app.password">
+      <!-- Parol ATAYLAB ko'rsatilmaydi: biznes egasining paroli admin
+           xodimlariga ochiq ko'rinmasligi kerak. Faqat login ko'rsatiladi. -->
+      <section v-if="app.login">
         <h3 class="text-foreground font-semibold text-lg mb-4">Kirish ma'lumotlari</h3>
         <div class="grid grid-cols-2 gap-y-4">
-          <div><div class="text-xs text-muted-foreground">Login</div><div class="text-foreground mt-0.5">{{ app.login || '—' }}</div></div>
-          <div><div class="text-xs text-muted-foreground">Parol</div><div class="text-foreground mt-0.5">{{ app.password || '—' }}</div></div>
+          <div><div class="text-xs text-muted-foreground">Login</div><div class="text-foreground mt-0.5">{{ app.login }}</div></div>
+          <div><div class="text-xs text-muted-foreground">Parol</div><div class="text-muted-foreground mt-0.5 italic">Yashirilgan</div></div>
         </div>
       </section>
 
