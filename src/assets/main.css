@@ -53,60 +53,63 @@
 :root {
   --radius: 0.75rem;
 
-  /* Dark by default — Savin is dark-only */
-  --background: oklch(0.16 0.005 260);
-  --foreground: oklch(0.98 0.002 260);
+  /* Dark by default — Savin is dark-only.
+     Figma "Discount System (Full)" uses a clean neutral black (#0f0f0f),
+     not a cool-blue tint — neutral grayscale (chroma 0) matches the design. */
+  --background: oklch(0.168 0 0);
+  --foreground: oklch(0.98 0 0);
 
-  --card: oklch(0.2 0.005 260);
-  --card-foreground: oklch(0.98 0.002 260);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.98 0 0);
 
-  --popover: oklch(0.22 0.008 260);
-  --popover-foreground: oklch(0.98 0.002 260);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(0.98 0 0);
 
-  /* Bright lime green accent */
-  --primary: oklch(0.87 0.22 135);
+  /* Primary green — Figma #89ea5c */
+  --primary: oklch(0.848 0.201 137);
   --primary-foreground: oklch(0.2 0.05 150);
 
-  --secondary: oklch(0.26 0.005 260);
-  --secondary-foreground: oklch(0.98 0.002 260);
+  --secondary: oklch(0.26 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
 
-  --muted: oklch(0.24 0.005 260);
-  --muted-foreground: oklch(0.68 0.01 260);
+  --muted: oklch(0.24 0 0);
+  --muted-foreground: oklch(0.68 0 0);
 
-  --accent: oklch(0.28 0.008 260);
-  --accent-foreground: oklch(0.98 0.002 260);
+  --accent: oklch(0.28 0 0);
+  --accent-foreground: oklch(0.98 0 0);
 
-  --destructive: oklch(0.65 0.24 25);
-  --destructive-foreground: oklch(0.98 0.002 260);
+  --destructive: oklch(0.637 0.21 28.5);
+  --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(0.28 0.006 260);
-  --input: oklch(0.24 0.006 260);
-  --ring: oklch(0.87 0.22 135);
+  --border: oklch(0.28 0 0);
+  --input: oklch(0.24 0 0);
+  --ring: oklch(0.848 0.201 137);
 
-  /* Status badges */
-  --status-premium: oklch(0.35 0.14 145);
-  --status-premium-foreground: oklch(0.9 0.2 140);
-  --status-overdue: oklch(0.4 0.18 25);
-  --status-overdue-foreground: oklch(0.9 0.15 25);
-  --status-new: oklch(0.4 0.18 250);
-  --status-new-foreground: oklch(0.9 0.15 250);
-  --status-trial: oklch(0.45 0.18 55);
-  --status-trial-foreground: oklch(0.9 0.15 65);
+  /* Status badges — saturated Untitled UI palette (Figma):
+     premium #17b26a · overdue #f04438 · new #2e90fa · trial #f79009 */
+  --status-premium: oklch(0.35 0.1 156);
+  --status-premium-foreground: oklch(0.673 0.16 156);
+  --status-overdue: oklch(0.4 0.16 28.5);
+  --status-overdue-foreground: oklch(0.637 0.21 28.5);
+  --status-new: oklch(0.4 0.16 254);
+  --status-new-foreground: oklch(0.652 0.181 254);
+  --status-trial: oklch(0.45 0.15 62);
+  --status-trial-foreground: oklch(0.747 0.17 62);
 
   /* Gradients & shadows */
-  --gradient-green: radial-gradient(ellipse at right center, oklch(0.7 0.25 135) 0%, oklch(0.3 0.15 145) 40%, oklch(0.15 0.005 260) 90%);
-  --shadow-glow: 0 0 40px oklch(0.87 0.22 135 / 0.25);
+  --gradient-green: radial-gradient(ellipse at right center, oklch(0.7 0.25 137) 0%, oklch(0.3 0.15 145) 40%, oklch(0.15 0 0) 90%);
+  --shadow-glow: 0 0 40px oklch(0.848 0.201 137 / 0.25);
   --shadow-card: 0 4px 20px oklch(0 0 0 / 0.4);
 
   /* Sidebar */
-  --sidebar: oklch(0.19 0.005 260);
-  --sidebar-foreground: oklch(0.85 0.005 260);
-  --sidebar-primary: oklch(0.87 0.22 135);
+  --sidebar: oklch(0.19 0 0);
+  --sidebar-foreground: oklch(0.85 0 0);
+  --sidebar-primary: oklch(0.848 0.201 137);
   --sidebar-primary-foreground: oklch(0.2 0.05 150);
-  --sidebar-accent: oklch(0.24 0.006 260);
-  --sidebar-accent-foreground: oklch(0.98 0.002 260);
-  --sidebar-border: oklch(0.26 0.005 260);
-  --sidebar-ring: oklch(0.87 0.22 135);
+  --sidebar-accent: oklch(0.24 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.26 0 0);
+  --sidebar-ring: oklch(0.848 0.201 137);
 }
 
 @layer base {

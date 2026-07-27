@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
-import { Users, Building2, Wallet, TrendingUp, UserCheck, Bell, Calendar } from 'lucide-vue-next'
+import { Users, Building2, Coins, ChartNoAxesCombined, UserCheck, Bell, Calendar } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import StatCard from '@/components/StatCard.vue'
@@ -309,8 +309,8 @@ const monthlyOptions = computed(() => ({
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       <StatCard :icon="Users" label="Faol foydalanuvchilar" :value="String(kpis.active_users)" to="/users" />
       <StatCard :icon="Building2" label="Faol bizneslar" :value="String(kpis.active_businesses)" to="/businesses" />
-      <StatCard :icon="Wallet" label="Oylik daromad" :value="String(kpis.monthly_revenue)" to="/payments" />
-      <StatCard :icon="TrendingUp" label="Obuna to'lash foizi" :value="String(kpis.subscription_rate)" to="/analytics" />
+      <StatCard :icon="Coins" label="Oylik daromad" :value="String(kpis.monthly_revenue)" to="/payments" />
+      <StatCard :icon="ChartNoAxesCombined" label="Obuna to'lash foizi" :value="String(kpis.subscription_rate)" to="/analytics" />
       <StatCard :icon="UserCheck" label="Yuklab olinganlar" :value="String(kpis.downloads)" to="/analytics" />
     </div>
 

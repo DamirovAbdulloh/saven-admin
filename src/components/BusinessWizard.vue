@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { X, Check, FileText, CheckCircle2, Trash2, Info } from 'lucide-vue-next'
+import { ref, reactive, computed, watch } from 'vue'
+import { X, Check, FileText, CheckCircle2, Trash2, Info, Search } from 'lucide-vue-next'
 import api from '@/api/client'
 import { toast } from '@/composables/useToast'
+import LocationPicker from '@/components/LocationPicker.vue'
+import { REGION_OPTIONS, getDistricts, getRegionLabel } from '@/data/uzRegions'
 
 const emit = defineEmits<{ (e: 'close'): void; (e: 'created'): void }>()
 
@@ -12,25 +14,10 @@ const TYPES = [
   { value: 'MChJ', label: 'MChJ' },
   { value: 'OK', label: 'Oilaviy korxona' },
 ]
-const REGIONS = [
-  'Toshkent shahri',
-  'Toshkent viloyati',
-  'Andijon',
-  'Buxoro',
-  "Farg'ona",
-  'Jizzax',
-  'Namangan',
-  'Navoiy',
-  'Qashqadaryo',
-  "Qoraqalpog'iston",
-  'Samarqand',
-  'Sirdaryo',
-  'Surxondaryo',
-  'Xorazm',
-]
-const DISTRICTS = ['Chilonzor tumani', 'Yunusobod tumani', 'Mirzo Ulug\'bek tumani', 'Yakkasaroy tumani', 'Shayxontohur tumani', 'Sergeli tumani']
 const WORK_DAYS = ['Dushanba – Juma', 'Dushanba – Shanba', 'Har kuni']
-const WORK_HOURS = ['09:00 - 18:00', '09:00 - 22:00', '10:00 - 20:00', '08:00 - 23:00']
+// Landing formasi bilan bir xil: chegirma presetlari va qo'llanilish turlari
+const DISCOUNT_PRESETS = [5, 10, 15, 20, 25]
+const DISCOUNT_SCOPES = ['Barcha mahsulotlar', 'Minimal xarid summasi']
 
 const steps = ['Asosiy', 'Kontakt', 'Joylashuv', 'Chegirma', 'Hujjatlar']
 const step = ref(1)
@@ -44,7 +31,7 @@ const form = reactive({
   description: '',
   login: '',
   password: '',
-  phone: '',
+  phone: '+998',
   instagram: '',
   telegram: '',
   email: '',
@@ -52,31 +39,177 @@ const form = reactive({
   region: '',
   district: '',
   address: '',
+  latitude: null as number | null,
+  longitude: null as number | null,
   work_days: 'Dushanba – Juma',
-  work_hours: '09:00 - 18:00',
-  discount_percent: 5,
+  work_hours_from: '09:00',
+  work_hours_to: '18:00',
+  discount_percent: 15,
   min_purchase: 50000,
+  discount_scope: 'Barcha mahsulotlar',
   document_name: '',
   document_size_kb: 0,
 })
+
+// Landing formasidagi kabi maydon-darajasidagi xatolar
+const fieldErrors = reactive<Record<string, string>>({})
+function clearErrors(keys: string[]) {
+  keys.forEach((k) => (fieldErrors[k] = ''))
+}
+
+// Viloyatga qarab tumanlar dinamik (landing bilan bir xil manba)
+const districtOptions = computed(() => getDistricts(form.region))
+watch(
+  () => form.region,
+  (val, old) => {
+    if (val !== old) form.district = ''
+  },
+)
+
+// ---- Validatsiya (landing ArizaQoldiring.vue bilan bir xil qoidalar) ----
+
+function normalizePhone(phone: string) {
+  const digits = phone.replace(/\D/g, '').replace(/^998/, '')
+  return `+998${digits}`
+}
+function isValidUzPhone(phone: string) {
+  return /^\+998\d{9}$/.test(normalizePhone(phone))
+}
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function validateStep1() {
+  clearErrors(['name', 'owner', 'category', 'business_type', 'description', 'login', 'password'])
+  let ok = true
+  if (!form.name.trim()) { fieldErrors.name = 'Biznes nomini kiriting.'; ok = false }
+  if (!form.owner.trim()) { fieldErrors.owner = "Mas'ul shaxsning to'liq ismini kiriting."; ok = false }
+  if (!form.category) { fieldErrors.category = 'Kategoriyani tanlang.'; ok = false }
+  if (!form.business_type) { fieldErrors.business_type = 'Biznes turini tanlang.'; ok = false }
+  if (!form.description.trim()) { fieldErrors.description = 'Faoliyat haqida qisqacha yozing.'; ok = false }
+  if (!form.login.trim()) { fieldErrors.login = 'Panel loginini kiriting.'; ok = false }
+  if (!form.password || form.password.length < 6) {
+    fieldErrors.password = "Parol kamida 6 ta belgidan iborat bo'lishi kerak."
+    ok = false
+  }
+  return ok
+}
+
+function validateStep2() {
+  clearErrors(['phone', 'email'])
+  let ok = true
+  if (!isValidUzPhone(form.phone)) {
+    fieldErrors.phone = "Telefon raqamini to'g'ri kiriting (+998 XX XXX XX XX)."
+    ok = false
+  }
+  if (!form.email.trim() || !isValidEmail(form.email)) {
+    fieldErrors.email = "Email manzilini to'g'ri kiriting."
+    ok = false
+  }
+  return ok
+}
+
+function validateStep3() {
+  clearErrors(['region', 'district', 'address', 'location', 'work_days', 'work_hours'])
+  let ok = true
+  if (!form.region) { fieldErrors.region = 'Viloyatni tanlang.'; ok = false }
+  if (!form.district) { fieldErrors.district = 'Tuman/shaharni tanlang.'; ok = false }
+  if (!form.address.trim()) { fieldErrors.address = "To'liq manzilni kiriting."; ok = false }
+  if (form.latitude == null || form.longitude == null) {
+    fieldErrors.location = "Xaritada aniq joyni belgilang (qidiring yoki xaritaga bosing)."
+    ok = false
+  }
+  if (!form.work_days) { fieldErrors.work_days = 'Ish kunlarini tanlang.'; ok = false }
+  if (!form.work_hours_from || !form.work_hours_to) {
+    fieldErrors.work_hours = 'Ish vaqtini kiriting (dan / gacha).'
+    ok = false
+  } else if (form.work_hours_from >= form.work_hours_to) {
+    fieldErrors.work_hours = "Tugash vaqti boshlanish vaqtidan keyin bo'lishi kerak."
+    ok = false
+  }
+  return ok
+}
+
+function validateStep4() {
+  clearErrors(['discount_percent', 'min_purchase', 'discount_scope'])
+  let ok = true
+  const d = Number(form.discount_percent)
+  if (!d) { fieldErrors.discount_percent = 'Chegirma foizini tanlang yoki kiriting.'; ok = false }
+  else if (d < 5 || d > 100) {
+    fieldErrors.discount_percent = "Chegirma foizi 5 dan 100 gacha bo'lishi kerak."
+    ok = false
+  }
+  if (!form.discount_scope) { fieldErrors.discount_scope = "Qo'llanilish turini tanlang."; ok = false }
+  if (form.discount_scope === 'Minimal xarid summasi' && (!form.min_purchase || form.min_purchase <= 0)) {
+    fieldErrors.min_purchase = 'Minimal xarid summasini kiriting.'
+    ok = false
+  }
+  return ok
+}
+
+function validateStep5() {
+  clearErrors(['document_name'])
+  if (!form.document_name) {
+    fieldErrors.document_name = 'Shartnoma faylini yuklang.'
+    return false
+  }
+  return true
+}
+
+// ---- Xarita: manzil bo'yicha qidirish ----
+const mapRef = ref<InstanceType<typeof LocationPicker> | null>(null)
+const searching = ref(false)
+
+async function searchOnMap() {
+  if (!form.address.trim()) {
+    fieldErrors.address = 'Avval manzilni kiriting.'
+    return
+  }
+  searching.value = true
+  try {
+    // Landing kabi: to'liqdan soddaga qarab bosqichma-bosqich qidiramiz
+    const regionLabel = getRegionLabel(form.region)
+    const queries = [
+      ["O'zbekiston", regionLabel, form.district, form.address],
+      ["O'zbekiston", regionLabel, form.address],
+      [regionLabel, form.address],
+      [form.address],
+    ]
+      .map((parts) => parts.filter(Boolean).join(', '))
+      .filter((q, i, arr) => q && arr.indexOf(q) === i)
+
+    for (const q of queries) {
+      if (await mapRef.value?.searchAddress(q)) return
+    }
+    fieldErrors.location = "Manzil topilmadi. Xaritaga bosib joyni qo'lda belgilang."
+  } finally {
+    searching.value = false
+  }
+}
+
+function onLocationUpdate(payload: { latitude: number; longitude: number; address?: string }) {
+  form.latitude = payload.latitude
+  form.longitude = payload.longitude
+  fieldErrors.location = ''
+  if (payload.address) {
+    form.address = payload.address
+    fieldErrors.address = ''
+  }
+}
 
 const showConfirm = ref(false)
 const showSuccess = ref(false)
 const created = ref<any>(null)
 const submitting = ref(false)
 
-const step1Valid = computed(() => form.name && form.owner && form.category && form.login && form.password)
-
 function next() {
-  if (step.value === 1 && !step1Valid.value) {
-    toast.error("Majburiy maydonlarni to'ldiring")
+  const validators = [validateStep1, validateStep2, validateStep3, validateStep4, validateStep5]
+  if (!validators[step.value - 1]()) {
+    toast.error("Iltimos, belgilangan maydonlarni to'g'ri to'ldiring")
     return
   }
-  if (step.value < 5) {
-    step.value += 1
-  } else {
-    showConfirm.value = true
-  }
+  if (step.value < 5) step.value += 1
+  else showConfirm.value = true
 }
 function back() {
   if (step.value > 1) step.value -= 1
@@ -86,6 +219,7 @@ function back() {
 function pickFile() {
   form.document_name = 'shartnoma.pdf'
   form.document_size_kb = 520
+  fieldErrors.document_name = ''
   toast.success('Fayl yuklandi')
 }
 function removeFile() {
@@ -96,8 +230,33 @@ function removeFile() {
 async function submit() {
   submitting.value = true
   try {
-    const payload = { ...form }
-    if (!payload.registered_at) delete (payload as any).registered_at
+    const payload: Record<string, any> = {
+      name: form.name,
+      owner: form.owner,
+      category: form.category,
+      business_type: form.business_type,
+      description: form.description,
+      login: form.login,
+      password: form.password,
+      phone: normalizePhone(form.phone),
+      email: form.email,
+      instagram: form.instagram,
+      telegram: form.telegram,
+      website: form.website,
+      region: getRegionLabel(form.region),
+      district: form.district,
+      address: form.address,
+      latitude: form.latitude,
+      longitude: form.longitude,
+      work_days: form.work_days,
+      work_hours: `${form.work_hours_from} - ${form.work_hours_to}`,
+      discount_percent: Number(form.discount_percent),
+      min_purchase: form.min_purchase,
+      discount_scope: form.discount_scope,
+      document_name: form.document_name,
+      document_size_kb: form.document_size_kb,
+    }
+    if (form.registered_at) payload.registered_at = form.registered_at
     const { data } = await api.post('/businesses/', payload)
     created.value = data
     showConfirm.value = false
@@ -150,18 +309,21 @@ async function submit() {
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Biznes nomi *</label>
-              <input v-model="form.name" placeholder="Baraka Restoran..." class="wz-input" />
+              <input v-model="form.name" placeholder="Baraka Restoran..." :class="['wz-input', fieldErrors.name && 'wz-invalid']" />
+              <p v-if="fieldErrors.name" class="wz-err">{{ fieldErrors.name }}</p>
             </div>
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Mas'ul shaxs FIO *</label>
-              <input v-model="form.owner" placeholder="To'liq ism sharif..." class="wz-input" />
+              <input v-model="form.owner" placeholder="To'liq ism sharif..." :class="['wz-input', fieldErrors.owner && 'wz-invalid']" />
+              <p v-if="fieldErrors.owner" class="wz-err">{{ fieldErrors.owner }}</p>
             </div>
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Kategoriya *</label>
-              <select v-model="form.category" class="wz-input">
+              <select v-model="form.category" :class="['wz-input', fieldErrors.category && 'wz-invalid']">
                 <option value="">Tanlang...</option>
                 <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}</option>
               </select>
+              <p v-if="fieldErrors.category" class="wz-err">{{ fieldErrors.category }}</p>
             </div>
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Biznes turi *</label>
@@ -175,26 +337,41 @@ async function submit() {
             <input v-model="form.registered_at" type="date" class="wz-input" />
           </div>
           <div>
-            <label class="text-xs text-muted-foreground block mb-1.5">Biznes haqida qisqacha</label>
-            <textarea v-model="form.description" placeholder="Biznes faoliyati haqida qisqacha ma'lumot..." class="wz-input min-h-24 resize-none" />
+            <label class="text-xs text-muted-foreground block mb-1.5">Biznes haqida qisqacha *</label>
+            <textarea
+              v-model="form.description"
+              placeholder="Biznes faoliyati haqida qisqacha ma'lumot..."
+              :class="['wz-input min-h-24 resize-none', fieldErrors.description && 'wz-invalid']"
+            />
+            <p v-if="fieldErrors.description" class="wz-err">{{ fieldErrors.description }}</p>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Login *</label>
-              <input v-model="form.login" placeholder="Login" class="wz-input" />
+              <input v-model="form.login" placeholder="example@savin.uz" :class="['wz-input', fieldErrors.login && 'wz-invalid']" />
+              <p v-if="fieldErrors.login" class="wz-err">{{ fieldErrors.login }}</p>
             </div>
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Parol *</label>
-              <input v-model="form.password" placeholder="Parol" class="wz-input" />
+              <input v-model="form.password" type="password" placeholder="••••••" :class="['wz-input', fieldErrors.password && 'wz-invalid']" />
+              <p v-if="fieldErrors.password" class="wz-err">{{ fieldErrors.password }}</p>
             </div>
           </div>
         </template>
 
         <!-- Step 2: Kontakt -->
         <template v-if="step === 2">
-          <div>
-            <label class="text-xs text-muted-foreground block mb-1.5">Telefon raqami *</label>
-            <input v-model="form.phone" placeholder="+998 90 000 00 00" class="wz-input" />
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-muted-foreground block mb-1.5">Telefon raqami *</label>
+              <input v-model="form.phone" placeholder="+998 90 000 00 00" :class="['wz-input', fieldErrors.phone && 'wz-invalid']" />
+              <p v-if="fieldErrors.phone" class="wz-err">{{ fieldErrors.phone }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-muted-foreground block mb-1.5">Email manzil *</label>
+              <input v-model="form.email" placeholder="info@biznes.uz" :class="['wz-input', fieldErrors.email && 'wz-invalid']" />
+              <p v-if="fieldErrors.email" class="wz-err">{{ fieldErrors.email }}</p>
+            </div>
           </div>
           <h4 class="text-foreground font-semibold pt-2">Ijtimoiy tarmoqlar</h4>
           <div class="grid grid-cols-2 gap-3">
@@ -206,14 +383,10 @@ async function submit() {
               <label class="text-xs text-muted-foreground block mb-1.5">Telegram kanal</label>
               <input v-model="form.telegram" placeholder="t.me/biznes_uz" class="wz-input" />
             </div>
-            <div>
-              <label class="text-xs text-muted-foreground block mb-1.5">Email manzil</label>
-              <input v-model="form.email" placeholder="info@biznes.uz" class="wz-input" />
-            </div>
-            <div>
-              <label class="text-xs text-muted-foreground block mb-1.5">Veb-sayt</label>
-              <input v-model="form.website" placeholder="www.biznes.uz" class="wz-input" />
-            </div>
+          </div>
+          <div>
+            <label class="text-xs text-muted-foreground block mb-1.5">Veb-sayt</label>
+            <input v-model="form.website" placeholder="www.biznes.uz" class="wz-input" />
           </div>
           <div class="rounded-xl bg-primary/10 border border-primary/30 p-3 flex items-center gap-2 text-xs text-primary mt-2">
             <Info class="h-4 w-4 shrink-0" />
@@ -226,39 +399,77 @@ async function submit() {
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Viloyat *</label>
-              <select v-model="form.region" class="wz-input">
+              <select v-model="form.region" :class="['wz-input', fieldErrors.region && 'wz-invalid']">
                 <option value="">Tanlang</option>
-                <option v-for="r in REGIONS" :key="r" :value="r">{{ r }}</option>
+                <option v-for="r in REGION_OPTIONS" :key="r.value" :value="r.value">{{ r.label }}</option>
               </select>
+              <p v-if="fieldErrors.region" class="wz-err">{{ fieldErrors.region }}</p>
             </div>
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Shahar / Tuman *</label>
-              <select v-model="form.district" class="wz-input">
-                <option value="">Tanlang</option>
-                <option v-for="d in DISTRICTS" :key="d" :value="d">{{ d }}</option>
+              <select
+                v-model="form.district"
+                :disabled="!form.region"
+                :class="['wz-input disabled:opacity-50', fieldErrors.district && 'wz-invalid']"
+              >
+                <option value="">{{ form.region ? 'Tanlang' : 'Avval viloyatni tanlang' }}</option>
+                <option v-for="d in districtOptions" :key="d" :value="d">{{ d }}</option>
               </select>
+              <p v-if="fieldErrors.district" class="wz-err">{{ fieldErrors.district }}</p>
             </div>
           </div>
           <div>
             <label class="text-xs text-muted-foreground block mb-1.5">To'liq manzil *</label>
-            <input v-model="form.address" placeholder="Ko'cha, uy, mo'ljal..." class="wz-input" />
+            <div class="flex gap-2">
+              <input
+                v-model="form.address"
+                placeholder="Ko'cha, uy, mo'ljal..."
+                @keydown.enter.prevent="searchOnMap"
+                :class="['wz-input', fieldErrors.address && 'wz-invalid']"
+              />
+              <button
+                type="button"
+                @click="searchOnMap"
+                :disabled="searching"
+                title="Xaritadan qidirish"
+                class="shrink-0 w-11 h-10 rounded-[0.625rem] bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center transition-colors disabled:opacity-60"
+              >
+                <Search class="h-4 w-4" />
+              </button>
+            </div>
+            <p v-if="fieldErrors.address" class="wz-err">{{ fieldErrors.address }}</p>
           </div>
-          <div class="rounded-xl bg-muted/60 border border-border h-40 flex items-center justify-center text-sm text-muted-foreground">
-            Xaritada ko'rsatish
+
+          <div>
+            <label class="text-xs text-muted-foreground block mb-1.5">Xaritada aniq joylashuvni belgilang *</label>
+            <LocationPicker
+              ref="mapRef"
+              :latitude="form.latitude"
+              :longitude="form.longitude"
+              :region="form.region"
+              :invalid="!!fieldErrors.location"
+              @update="onLocationUpdate"
+            />
+            <p v-if="fieldErrors.location" class="wz-err">{{ fieldErrors.location }}</p>
           </div>
+
           <h4 class="text-foreground font-semibold pt-2">Ish vaqti</h4>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="text-xs text-muted-foreground block mb-1.5">Ish kunlari</label>
-              <select v-model="form.work_days" class="wz-input">
+              <label class="text-xs text-muted-foreground block mb-1.5">Ish kunlari *</label>
+              <select v-model="form.work_days" :class="['wz-input', fieldErrors.work_days && 'wz-invalid']">
                 <option v-for="d in WORK_DAYS" :key="d" :value="d">{{ d }}</option>
               </select>
+              <p v-if="fieldErrors.work_days" class="wz-err">{{ fieldErrors.work_days }}</p>
             </div>
             <div>
-              <label class="text-xs text-muted-foreground block mb-1.5">Ish vaqti</label>
-              <select v-model="form.work_hours" class="wz-input">
-                <option v-for="h in WORK_HOURS" :key="h" :value="h">{{ h }}</option>
-              </select>
+              <label class="text-xs text-muted-foreground block mb-1.5">Ish vaqti *</label>
+              <div class="flex items-center gap-2">
+                <input v-model="form.work_hours_from" type="time" :class="['wz-input text-center', fieldErrors.work_hours && 'wz-invalid']" />
+                <span class="text-muted-foreground shrink-0">—</span>
+                <input v-model="form.work_hours_to" type="time" :class="['wz-input text-center', fieldErrors.work_hours && 'wz-invalid']" />
+              </div>
+              <p v-if="fieldErrors.work_hours" class="wz-err">{{ fieldErrors.work_hours }}</p>
             </div>
           </div>
         </template>
@@ -266,36 +477,63 @@ async function submit() {
         <!-- Step 4: Chegirma -->
         <template v-if="step === 4">
           <div>
-            <label class="text-xs text-muted-foreground block mb-1.5">Chegirma foizi *</label>
-            <input
-              :value="form.discount_percent + '%'"
-              readonly
-              class="wz-input"
-            />
-            <input
-              v-model.number="form.discount_percent"
-              type="range"
-              min="1"
-              max="20"
-              class="w-full accent-[oklch(0.87_0.22_135)] mt-2"
-            />
-            <div class="flex items-center justify-between text-xs text-muted-foreground">
-              <span>1%</span>
-              <span>20%</span>
+            <label class="text-xs text-muted-foreground block mb-2">Chegirma foizi *</label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="p in DISCOUNT_PRESETS"
+                :key="p"
+                type="button"
+                @click="form.discount_percent = p"
+                :class="[
+                  'px-4 py-2 text-sm font-semibold rounded-full border transition-colors',
+                  form.discount_percent === p
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-muted text-muted-foreground border-border hover:border-primary/50',
+                ]"
+              >
+                {{ p }}%
+              </button>
             </div>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="text-xs text-muted-foreground">Boshqa foiz:</span>
+              <div class="relative">
+                <input
+                  v-model.number="form.discount_percent"
+                  type="number"
+                  min="5"
+                  max="100"
+                  :class="['wz-input w-28 pr-7', fieldErrors.discount_percent && 'wz-invalid']"
+                />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">%</span>
+              </div>
+            </div>
+            <p v-if="fieldErrors.discount_percent" class="wz-err">{{ fieldErrors.discount_percent }}</p>
           </div>
+
           <div>
-            <label class="text-xs text-muted-foreground block mb-1.5">Min. xarid summasi (so'm)</label>
-            <input v-model.number="form.min_purchase" type="number" class="wz-input" />
+            <label class="text-xs text-muted-foreground block mb-1.5">Chegirma qo'llanilish turi *</label>
+            <select v-model="form.discount_scope" :class="['wz-input', fieldErrors.discount_scope && 'wz-invalid']">
+              <option v-for="s in DISCOUNT_SCOPES" :key="s" :value="s">{{ s }}</option>
+            </select>
+            <p v-if="fieldErrors.discount_scope" class="wz-err">{{ fieldErrors.discount_scope }}</p>
           </div>
-          <h4 class="text-foreground font-semibold pt-2">Chegirma qo'llanilish turi</h4>
-          <span class="inline-flex items-center rounded-lg bg-primary/15 text-primary px-3 py-1.5 text-sm">Barcha mahsulotlar</span>
+
+          <div v-if="form.discount_scope === 'Minimal xarid summasi'">
+            <label class="text-xs text-muted-foreground block mb-1.5">Min. xarid summasi (so'm) *</label>
+            <input v-model.number="form.min_purchase" type="number" :class="['wz-input', fieldErrors.min_purchase && 'wz-invalid']" />
+            <p v-if="fieldErrors.min_purchase" class="wz-err">{{ fieldErrors.min_purchase }}</p>
+          </div>
         </template>
 
         <!-- Step 5: Hujjatlar -->
         <template v-if="step === 5">
           <label class="text-xs text-muted-foreground block mb-1.5">Shartnoma (PDF) *</label>
-          <div class="rounded-xl bg-muted/40 border border-dashed border-border p-6 text-center">
+          <div
+            :class="[
+              'rounded-xl bg-muted/40 border border-dashed p-6 text-center',
+              fieldErrors.document_name ? 'border-destructive' : 'border-border',
+            ]"
+          >
             <FileText class="h-8 w-8 mx-auto text-muted-foreground mb-3" />
             <p class="text-sm text-foreground mb-1">Bino kadastr hujjati va ijara shartnomani yuklang</p>
             <p class="text-xs text-muted-foreground mb-3">PDF, JPEG, PNG (10 MB gacha)</p>
@@ -306,6 +544,7 @@ async function submit() {
               Faylni yuklash
             </button>
           </div>
+          <p v-if="fieldErrors.document_name" class="wz-err">{{ fieldErrors.document_name }}</p>
           <div
             v-if="form.document_name"
             class="rounded-xl bg-muted/60 border border-primary/40 p-3 flex items-center justify-between mt-3"
@@ -332,6 +571,7 @@ async function submit() {
         >
           {{ step === 1 ? 'Bekor qilish' : 'Orqaga' }}
         </button>
+        <span class="text-xs text-muted-foreground">{{ step }}/{{ steps.length }} bosqich</span>
         <button
           @click="next"
           class="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold flex items-center gap-1.5 transition-colors"
@@ -375,18 +615,22 @@ async function submit() {
           <div class="rounded-xl bg-muted/40 border border-border p-4">
             <div class="text-sm font-semibold text-foreground mb-3">3. Joylashuv</div>
             <dl class="space-y-1.5 text-sm">
-              <div class="flex justify-between"><dt class="text-muted-foreground">Viloyat:</dt><dd class="text-foreground">{{ form.region || '—' }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Viloyat:</dt><dd class="text-foreground">{{ getRegionLabel(form.region) || '—' }}</dd></div>
               <div class="flex justify-between"><dt class="text-muted-foreground">Shahar:</dt><dd class="text-foreground">{{ form.district || '—' }}</dd></div>
-              <div class="flex justify-between"><dt class="text-muted-foreground">Manzil:</dt><dd class="text-foreground">{{ form.address || '—' }}</dd></div>
-              <div class="flex justify-between"><dt class="text-muted-foreground">Ish vaqti:</dt><dd class="text-foreground">{{ form.work_hours }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Manzil:</dt><dd class="text-foreground text-right max-w-[60%]">{{ form.address || '—' }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Lokatsiya:</dt><dd class="text-foreground">{{ form.latitude?.toFixed(5) }}, {{ form.longitude?.toFixed(5) }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Ish kunlari:</dt><dd class="text-foreground">{{ form.work_days }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Ish vaqti:</dt><dd class="text-foreground">{{ form.work_hours_from }} - {{ form.work_hours_to }}</dd></div>
             </dl>
           </div>
           <div class="rounded-xl bg-muted/40 border border-border p-4">
             <div class="text-sm font-semibold text-foreground mb-3">4. Chegirma</div>
             <dl class="space-y-1.5 text-sm">
               <div class="flex justify-between"><dt class="text-muted-foreground">Chegirma %:</dt><dd class="text-foreground">{{ form.discount_percent }}%</dd></div>
-              <div class="flex justify-between"><dt class="text-muted-foreground">Min. xarid:</dt><dd class="text-foreground">{{ form.min_purchase.toLocaleString() }} so'm</dd></div>
-              <div class="flex justify-between"><dt class="text-muted-foreground">Turi:</dt><dd class="text-foreground">Barcha mahsulotlar</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Turi:</dt><dd class="text-foreground">{{ form.discount_scope }}</dd></div>
+              <div v-if="form.discount_scope === 'Minimal xarid summasi'" class="flex justify-between">
+                <dt class="text-muted-foreground">Min. xarid:</dt><dd class="text-foreground">{{ form.min_purchase.toLocaleString() }} so'm</dd>
+              </div>
             </dl>
           </div>
           <div class="rounded-xl bg-muted/40 border border-border p-4">
@@ -463,5 +707,14 @@ async function submit() {
 textarea.wz-input {
   height: auto;
   padding: 0.5rem 0.75rem;
+}
+/* Xato holatidagi maydon — landing formasidagi qizil chegara bilan bir xil */
+.wz-invalid {
+  border-color: var(--color-destructive);
+}
+.wz-err {
+  font-size: 0.75rem;
+  color: var(--color-destructive);
+  margin-top: 0.375rem;
 }
 </style>

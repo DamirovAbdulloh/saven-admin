@@ -49,7 +49,7 @@ function copyPhone() {
     />
     <div
       class="absolute inset-y-0 right-0 w-1/2 pointer-events-none"
-      style="background: linear-gradient(to left, transparent, oklch(0.16 0.005 260) 90%)"
+      style="background: linear-gradient(to left, transparent, oklch(0.168 0 0) 90%)"
     />
 
     <!-- Help button -->

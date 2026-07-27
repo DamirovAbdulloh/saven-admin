@@ -149,7 +149,7 @@ async function save() {
           <div>
             <label class="ed-label">Chegirma foizi *</label>
             <input :value="form.discount_percent + '%'" readonly class="ed-input" />
-            <input v-model.number="form.discount_percent" type="range" min="1" max="20" class="w-full accent-[oklch(0.87_0.22_135)] mt-2" />
+            <input v-model.number="form.discount_percent" type="range" min="1" max="20" class="w-full accent-[oklch(0.848_0.201_137)] mt-2" />
           </div>
           <div><label class="ed-label">Min. xarid summasi (so'm)</label><input v-model.number="form.min_purchase" type="number" class="ed-input" /></div>
         </template>

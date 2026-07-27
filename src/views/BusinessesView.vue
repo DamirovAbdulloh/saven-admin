@@ -218,7 +218,7 @@ function onCreated() {
                       type="checkbox"
                       :checked="fCategories.includes(c)"
                       @change="toggleCategory(c)"
-                      class="accent-[oklch(0.87_0.22_135)]"
+                      class="accent-[oklch(0.848_0.201_137)]"
                     />
                     {{ c }}
                   </label>

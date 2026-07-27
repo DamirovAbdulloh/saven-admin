@@ -34,11 +34,13 @@ const COLOR_BY_STATUS: Record<string, string> = {
   'Bekor qilingan': 'red',
 }
 
+// Text colors are the saturated Untitled UI values used in the Figma design
+// (green #17b26a, red #f04438, blue #2e90fa, orange #f79009).
 const CLASSES: Record<string, string> = {
-  green: 'bg-[oklch(0.35_0.14_145)]/60 text-[oklch(0.9_0.2_140)]',
-  red: 'bg-[oklch(0.4_0.18_25)]/60 text-[oklch(0.9_0.13_25)]',
-  blue: 'bg-[oklch(0.4_0.18_250)]/60 text-[oklch(0.92_0.06_250)]',
-  orange: 'bg-[oklch(0.45_0.14_55)]/60 text-[oklch(0.9_0.14_65)]',
+  green: 'bg-[oklch(0.35_0.1_156)]/60 text-[oklch(0.673_0.16_156)]',
+  red: 'bg-[oklch(0.4_0.16_28.5)]/60 text-[oklch(0.637_0.21_28.5)]',
+  blue: 'bg-[oklch(0.4_0.16_254)]/60 text-[oklch(0.652_0.181_254)]',
+  orange: 'bg-[oklch(0.45_0.15_62)]/60 text-[oklch(0.747_0.17_62)]',
   teal: 'bg-[oklch(0.4_0.1_190)]/60 text-[oklch(0.9_0.11_190)]',
   gray: 'bg-muted text-muted-foreground',
 }

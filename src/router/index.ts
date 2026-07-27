@@ -41,7 +41,6 @@ const router = createRouter({
         },
         { path: 'notifications', name: 'notifications', component: () => import('@/views/NotificationsView.vue') },
         { path: 'analytics', name: 'analytics', component: () => import('@/views/AnalyticsView.vue') },
-        { path: 'settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
       ],
     },
     {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   Home,
@@ -7,13 +8,13 @@ import {
   CreditCard,
   Bell,
   PieChart,
-  Settings,
   LogOut,
   PanelLeft,
 } from 'lucide-vue-next'
 import { useSidebar } from '@/composables/useSidebar'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from '@/composables/useToast'
+import AppModal from '@/components/AppModal.vue'
 import logoFull from '@/assets/logo-savin.svg'
 import logoIcon from '@/assets/logo-savin-icon.svg'
 
@@ -29,7 +30,6 @@ const items = [
   { title: "To'lovlar", to: '/payments', icon: CreditCard },
   { title: 'Bildirishnomalar', to: '/notifications', icon: Bell },
   { title: 'Analitika', to: '/analytics', icon: PieChart },
-  { title: 'Sozlamalar', to: '/settings', icon: Settings },
 ]
 
 function isActive(path: string) {
@@ -37,7 +37,12 @@ function isActive(path: string) {
   return route.path.startsWith(path)
 }
 
-async function handleSignOut() {
+// "Chiqish" bosilganda avval tasdiqlash oynasi ochiladi (to'g'ridan-to'g'ri
+// chiqib ketmaydi) — foydalanuvchi tasdiqlasa yoki bekor qilsa.
+const showLogoutConfirm = ref(false)
+
+async function confirmSignOut() {
+  showLogoutConfirm.value = false
   await auth.logout()
   toast.success('Chiqildi')
   router.replace({ name: 'auth' })
@@ -87,17 +92,45 @@ async function handleSignOut() {
             <span v-if="!collapsed" class="text-sm">{{ item.title }}</span>
           </RouterLink>
         </li>
+
+        <!-- "Chiqish" — Sozlamalar o'rnida. Bosilganda tasdiqlash oynasi chiqadi. -->
+        <li>
+          <button
+            @click="showLogoutConfirm = true"
+            class="w-full flex items-center gap-3 rounded-md p-2 text-sidebar-foreground/80 hover:bg-destructive/15 hover:text-destructive transition-colors"
+          >
+            <LogOut class="h-4 w-4 shrink-0" />
+            <span v-if="!collapsed" class="text-sm">Chiqish</span>
+          </button>
+        </li>
       </ul>
     </nav>
-
-    <div class="border-t border-sidebar-border p-2">
-      <button
-        @click="handleSignOut"
-        class="w-full flex items-center gap-3 rounded-md p-2 text-sidebar-foreground/70 hover:bg-destructive/15 hover:text-destructive transition-colors"
-      >
-        <LogOut class="h-4 w-4" />
-        <span v-if="!collapsed" class="text-sm">Chiqish</span>
-      </button>
-    </div>
   </aside>
+
+  <!-- Tizimdan chiqishni tasdiqlash oynasi -->
+  <AppModal
+    v-if="showLogoutConfirm"
+    tone="red"
+    title="Rostdan ham chiqmoqchimisiz?"
+    subtitle="Tizimdan chiqasiz va keyingi safar qaytadan login qilishingiz kerak bo'ladi."
+    @close="showLogoutConfirm = false"
+  >
+    <template #icon>
+      <LogOut class="h-6 w-6 text-white" />
+    </template>
+    <template #actions>
+      <button
+        @click="showLogoutConfirm = false"
+        class="rounded-xl bg-muted hover:bg-accent px-5 py-2.5 text-sm font-medium text-foreground transition-colors"
+      >
+        Bekor qilish
+      </button>
+      <button
+        @click="confirmSignOut"
+        class="rounded-xl bg-destructive text-white hover:bg-destructive/90 px-5 py-2.5 text-sm font-semibold transition-colors"
+      >
+        Chiqish
+      </button>
+    </template>
+  </AppModal>
 </template>

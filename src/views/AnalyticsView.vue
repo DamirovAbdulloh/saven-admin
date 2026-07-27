@@ -85,14 +85,14 @@ const activityData = computed(() => ({
   labels: (data.value?.activity ?? []).map((a: any) => a.label),
   datasets: [
     { label: 'Oylik', data: (data.value?.activity ?? []).map((a: any) => a.monthly), backgroundColor: 'oklch(0.75 0.18 155)', borderRadius: 4 },
-    { label: 'Kunlik', data: (data.value?.activity ?? []).map((a: any) => a.daily), backgroundColor: 'oklch(0.87 0.22 135)', borderRadius: 4 },
+    { label: 'Kunlik', data: (data.value?.activity ?? []).map((a: any) => a.daily), backgroundColor: 'oklch(0.848 0.201 137)', borderRadius: 4 },
   ],
 }))
 const activityOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'top' as const, align: 'end' as const, labels: { color: 'oklch(0.98 0.002 260)', font: { size: 11 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
+    legend: { position: 'top' as const, align: 'end' as const, labels: { color: 'oklch(0.98 0 0)', font: { size: 11 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
     tooltip: baseTooltip,
   },
   scales: { x: { grid: gridLines(false), ticks: axisTicks() }, y: { grid: gridLines(true), ticks: axisTicks() } },
@@ -189,7 +189,7 @@ const hoveredCat = ref<number | string | null>(null)
         <div class="text-2xl font-bold text-foreground">{{ data.top.churn_rate }}</div>
       </div>
       <div class="rounded-2xl bg-card border border-border p-4">
-        <div class="text-xs text-muted-foreground mb-1">Kelayotgan 7 kunda muddati tugaydi</div>
+        <div class="text-xs text-muted-foreground mb-1">Keyingi 7 kunda muddati tugaydi</div>
         <div class="text-2xl font-bold text-foreground">{{ data.top.expiring_week }}</div>
       </div>
     </div>
@@ -279,7 +279,7 @@ const hoveredCat = ref<number | string | null>(null)
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="rounded-xl bg-muted/40 p-3">
-          <div class="text-xs text-muted-foreground mb-1">Bu oyda tejadi</div>
+          <div class="text-xs text-muted-foreground mb-1">Bu oyda tejashdi</div>
           <div class="text-lg font-bold text-foreground">{{ fmtSom(data.savings.this_month) }}</div>
         </div>
         <div class="rounded-xl bg-muted/40 p-3">
@@ -288,12 +288,12 @@ const hoveredCat = ref<number | string | null>(null)
           <div class="text-[11px] text-muted-foreground">{{ data.savings.top_member.name }}</div>
         </div>
         <div class="rounded-xl bg-muted/40 p-3">
-          <div class="text-xs text-muted-foreground mb-1">Har bir a'zo o'rtacha</div>
-          <div class="text-lg font-bold text-foreground">{{ fmtSom(data.savings.avg_per_visit) }} tejadi</div>
+          <div class="text-xs text-muted-foreground mb-1">Minimum tejalgan</div>
+          <div class="text-lg font-bold text-foreground">{{ fmtSom(data.savings.min_saved) }}</div>
         </div>
         <div class="rounded-xl bg-muted/40 p-3">
-          <div class="text-xs text-muted-foreground mb-1">O'rtacha berilgan chegirma</div>
-          <div class="text-lg font-bold text-foreground">{{ data.savings.avg_discount }}</div>
+          <div class="text-xs text-muted-foreground mb-1">Maximum tejalgan</div>
+          <div class="text-lg font-bold text-foreground">{{ fmtSom(data.savings.max_saved) }}</div>
         </div>
       </div>
 

@@ -23,14 +23,14 @@ ChartJS.register(
   Legend,
 )
 
-export const GRID_COLOR = 'oklch(0.28 0.006 260)'
-export const AXIS_COLOR = 'oklch(0.68 0.01 260)'
-export const PRIMARY = 'oklch(0.87 0.22 135)'
-export const TOOLTIP_BG = 'oklch(0.22 0.008 260)'
-export const TOOLTIP_BORDER = 'oklch(0.28 0.006 260)'
-export const TOOLTIP_TEXT = 'oklch(0.98 0.002 260)'
+export const GRID_COLOR = 'oklch(0.28 0 0)'
+export const AXIS_COLOR = 'oklch(0.68 0 0)'
+export const PRIMARY = 'oklch(0.848 0.201 137)'
+export const TOOLTIP_BG = 'oklch(0.22 0 0)'
+export const TOOLTIP_BORDER = 'oklch(0.28 0 0)'
+export const TOOLTIP_TEXT = 'oklch(0.98 0 0)'
 export const PIE_COLORS = [
-  'oklch(0.87 0.22 135)',
+  'oklch(0.848 0.201 137)',
   'oklch(0.7 0.18 145)',
   'oklch(0.55 0.14 155)',
   'oklch(0.4 0.08 160)',
