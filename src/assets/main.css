@@ -40,6 +40,16 @@
   --color-status-trial: var(--status-trial);
   --color-status-trial-foreground: var(--status-trial-foreground);
 
+  /* Logotip/Login urg'u yashili va grafik ranglari */
+  --color-brand-green: var(--brand-green);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -53,63 +63,82 @@
 :root {
   --radius: 0.75rem;
 
-  /* Dark by default — Savin is dark-only.
-     Figma "Discount System (Full)" uses a clean neutral black (#0f0f0f),
-     not a cool-blue tint — neutral grayscale (chroma 0) matches the design. */
-  --background: oklch(0.168 0 0);
-  --foreground: oklch(0.98 0 0);
+  /* ============================================================
+     RANGLAR — Figma "Discount System (Full)" · Admin Panel
+     Barcha qiymatlar dizayndan aynan olingan (hex ko'rinishida,
+     taxminiy oklch emas). O'zgartirishdan oldin dizaynga qarang.
+     ============================================================ */
 
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.98 0 0);
+  /* Sahifa foni (eng katta yuza) va asosiy matn */
+  --background: #0f0f0f;
+  --foreground: #ffffff;
 
-  --popover: oklch(0.22 0 0);
-  --popover-foreground: oklch(0.98 0 0);
+  /* Karta / panel / modal / top bar — dizaynda hammasi bir xil */
+  --card: #141414;
+  --card-foreground: #ffffff;
+  --popover: #141414;
+  --popover-foreground: #ffffff;
 
-  /* Primary green — Figma #89ea5c */
-  --primary: oklch(0.848 0.201 137);
-  --primary-foreground: oklch(0.2 0.05 150);
+  /* Asosiy yashil: tugmalar, faol menyu, grafik ustunlari.
+     Matn/ikonka esa yashil ustida to'q yashil (#052400) bo'ladi. */
+  --primary: #95f06d;
+  --primary-foreground: #052400;
 
-  --secondary: oklch(0.26 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
+  /* Logotip va Login sahifasidagi urg'u yashili (dizaynda alohida tus) */
+  --brand-green: #89ea5c;
 
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.68 0 0);
+  --secondary: #292929;
+  --secondary-foreground: #ffffff;
 
-  --accent: oklch(0.28 0 0);
-  --accent-foreground: oklch(0.98 0 0);
+  /* Input foni, progress-bar yo'lakchasi, ajratuvchi chiziqlar */
+  --muted: #424242;
+  --muted-foreground: #737373;
 
-  --destructive: oklch(0.637 0.21 28.5);
-  --destructive-foreground: oklch(0.98 0 0);
+  --accent: #292929;
+  --accent-foreground: #ffffff;
 
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.24 0 0);
-  --ring: oklch(0.848 0.201 137);
+  --destructive: #f04438;
+  --destructive-foreground: #ffffff;
 
-  /* Status badges — saturated Untitled UI palette (Figma):
-     premium #17b26a · overdue #f04438 · new #2e90fa · trial #f79009 */
-  --status-premium: oklch(0.35 0.1 156);
-  --status-premium-foreground: oklch(0.673 0.16 156);
-  --status-overdue: oklch(0.4 0.16 28.5);
-  --status-overdue-foreground: oklch(0.637 0.21 28.5);
-  --status-new: oklch(0.4 0.16 254);
-  --status-new-foreground: oklch(0.652 0.181 254);
-  --status-trial: oklch(0.45 0.15 62);
-  --status-trial-foreground: oklch(0.747 0.17 62);
+  --border: #292929;
+  --input: #424242;
+  --ring: #95f06d;
 
-  /* Gradients & shadows */
-  --gradient-green: radial-gradient(ellipse at right center, oklch(0.7 0.25 137) 0%, oklch(0.3 0.15 145) 40%, oklch(0.15 0 0) 90%);
-  --shadow-glow: 0 0 40px oklch(0.848 0.201 137 / 0.25);
-  --shadow-card: 0 4px 20px oklch(0 0 0 / 0.4);
+  /* Status belgilari — dizayn UI Kit'idan (to'liq shaffofsiz) */
+  --status-premium: #053321;
+  --status-premium-foreground: #17b26a;
+  --status-overdue: #55160c;
+  --status-overdue-foreground: #f04438;
+  --status-new: #102a56;
+  --status-new-foreground: #2e90fa;
+  --status-trial: #4e1d09;
+  --status-trial-foreground: #f79009;
 
-  /* Sidebar */
-  --sidebar: oklch(0.19 0 0);
-  --sidebar-foreground: oklch(0.85 0 0);
-  --sidebar-primary: oklch(0.848 0.201 137);
-  --sidebar-primary-foreground: oklch(0.2 0.05 150);
-  --sidebar-accent: oklch(0.24 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.26 0 0);
-  --sidebar-ring: oklch(0.848 0.201 137);
+  /* Grafik ranglari (donut: Click/Payme/Humo, ustunlar) */
+  --chart-1: #95f06d;
+  --chart-2: #5dc533;
+  --chart-3: #2e90fa;
+  --chart-4: #75e0a7;
+  --chart-5: #fec84b;
+  --chart-6: #17b26a;
+  --chart-7: #079455;
+
+  /* Gradient va soyalar */
+  --gradient-green: radial-gradient(ellipse at right center, #c1fea5 0%, #89ea5c 25%, #083400 60%, #0f0f0f 90%);
+  --shadow-glow: 0 0 40px rgb(149 240 109 / 0.25);
+  --shadow-card: 0 4px 20px rgb(0 0 0 / 0.4);
+  /* Modal orqa foni — dizaynda qora, 40% shaffoflik */
+  --overlay: rgb(0 0 0 / 0.4);
+
+  /* Yon menyu — dizaynda karta bilan bir xil fon */
+  --sidebar: #141414;
+  --sidebar-foreground: #737373;
+  --sidebar-primary: #95f06d;
+  --sidebar-primary-foreground: #052400;
+  --sidebar-accent: #292929;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #292929;
+  --sidebar-ring: #95f06d;
 }
 
 @layer base {

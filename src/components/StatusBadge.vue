@@ -3,8 +3,13 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   status: string
-  /** Optional color override: green | red | blue | orange | teal | gray */
+  /** Optional color override: green | red | blue | orange | gray */
   color?: string
+  /**
+   * Dizaynda "Arizalar" ekranidagi statuslar alohida (ochroq) tusda —
+   * shu ekranda `variant="application"` beriladi.
+   */
+  variant?: 'default' | 'application'
 }>()
 
 const COLOR_BY_STATUS: Record<string, string> = {
@@ -34,18 +39,32 @@ const COLOR_BY_STATUS: Record<string, string> = {
   'Bekor qilingan': 'red',
 }
 
-// Text colors are the saturated Untitled UI values used in the Figma design
-// (green #17b26a, red #f04438, blue #2e90fa, orange #f79009).
+// Dizayn UI Kit'idagi aniq ranglar (fon / matn) — shaffoflik yo'q.
 const CLASSES: Record<string, string> = {
-  green: 'bg-[oklch(0.35_0.1_156)]/60 text-[oklch(0.673_0.16_156)]',
-  red: 'bg-[oklch(0.4_0.16_28.5)]/60 text-[oklch(0.637_0.21_28.5)]',
-  blue: 'bg-[oklch(0.4_0.16_254)]/60 text-[oklch(0.652_0.181_254)]',
-  orange: 'bg-[oklch(0.45_0.15_62)]/60 text-[oklch(0.747_0.17_62)]',
-  teal: 'bg-[oklch(0.4_0.1_190)]/60 text-[oklch(0.9_0.11_190)]',
-  gray: 'bg-muted text-muted-foreground',
+  green: 'bg-[#053321] text-[#17b26a]',
+  red: 'bg-[#55160c] text-[#f04438]',
+  blue: 'bg-[#102a56] text-[#2e90fa]',
+  orange: 'bg-[#4e1d09] text-[#f79009]',
+  teal: 'bg-[#042f2a] text-[#2dd4bf]',
+  gray: 'bg-[#292929] text-[#737373]',
 }
 
-const cls = computed(() => CLASSES[props.color ?? COLOR_BY_STATUS[props.status] ?? 'gray'])
+// "Arizalar" ekranidagi statuslar — dizaynda ochroq va boshqacha tusda.
+const APPLICATION_CLASSES: Record<string, string> = {
+  Yangi: 'bg-[#083400] text-[#89ea5c]',
+  "Ko'rib chiqilmoqda": 'bg-[#3a2c05] text-[#f7c848]',
+  "Bog'lanildi": 'bg-[#052c3a] text-[#67c5f0]',
+  'Biznes yaratildi': 'bg-[#042f2a] text-[#2dd4bf]',
+  'Rad etildi': 'bg-[#3a0d09] text-[#f97066]',
+}
+
+const cls = computed(() => {
+  if (props.variant === 'application' && !props.color) {
+    const found = APPLICATION_CLASSES[props.status]
+    if (found) return found
+  }
+  return CLASSES[props.color ?? COLOR_BY_STATUS[props.status] ?? 'gray']
+})
 </script>
 
 <template>

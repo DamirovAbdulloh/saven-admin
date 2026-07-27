@@ -98,7 +98,7 @@ async function confirmRefund() {
       <div class="space-y-4">
         <div v-for="p in payment.history" :key="p.txn_id" class="flex items-start justify-between border-b border-border/50 pb-3 last:border-0">
           <div class="flex items-start gap-3">
-            <span :class="['h-2.5 w-2.5 rounded-full mt-1.5 shrink-0', p.status === 'Muvaffaqiyatli' ? 'bg-primary' : p.status === 'Qaytarilgan' ? 'bg-destructive' : 'bg-[oklch(0.7_0.15_75)]']" />
+            <span :class="['h-2.5 w-2.5 rounded-full mt-1.5 shrink-0', p.status === 'Muvaffaqiyatli' ? 'bg-primary' : p.status === 'Qaytarilgan' ? 'bg-destructive' : 'bg-[#fec84b]']" />
             <div>
               <div class="text-foreground text-sm">{{ p.amount }} · {{ p.status === 'Qaytarilgan' ? 'Qaytarilgan' : p.method }}</div>
               <div class="text-xs text-muted-foreground mt-0.5">{{ p.txn_id }} · {{ p.months }}-oy</div>

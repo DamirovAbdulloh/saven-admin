@@ -341,7 +341,7 @@ async function submit() {
 
 <template>
   <!-- Slide-over drawer -->
-  <div class="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm" @click.self="emit('close')">
+  <div class="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm" @click.self="emit('close')">
     <div class="w-full max-w-lg h-full bg-popover border-l border-border overflow-y-auto flex flex-col">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-popover z-10">
@@ -685,7 +685,7 @@ async function submit() {
     <!-- Confirm modal -->
     <div
       v-if="showConfirm"
-      class="fixed inset-0 z-[60] flex justify-end bg-black/50 backdrop-blur-sm"
+      class="fixed inset-0 z-[60] flex justify-end bg-black/40 backdrop-blur-sm"
       @click.self="showConfirm = false"
     >
       <div class="w-full max-w-lg h-full bg-popover border-l border-border overflow-y-auto">
@@ -761,13 +761,13 @@ async function submit() {
     </div>
 
     <!-- Success modal -->
-    <div v-if="showSuccess" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+    <div v-if="showSuccess" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div class="w-full max-w-sm rounded-3xl bg-popover border border-border p-8 text-center">
-        <div class="w-16 h-16 rounded-full bg-[oklch(0.55_0.15_155)] mx-auto mb-5 flex items-center justify-center">
+        <div class="w-16 h-16 rounded-full bg-[#17b26a] mx-auto mb-5 flex items-center justify-center">
           <CheckCircle2 class="h-8 w-8 text-white" />
         </div>
         <h2 class="text-xl font-bold text-foreground mb-1">Biznes muvaffaqiyatli yaratildi!</h2>
-        <span class="inline-flex items-center rounded-full bg-[oklch(0.55_0.14_65)]/30 text-[oklch(0.85_0.14_65)] px-3 py-0.5 text-xs mb-5">Kutilmoqda</span>
+        <span class="inline-flex items-center rounded-full bg-[#4e1d09] text-[#f79009] px-3 py-0.5 text-xs mb-5">Kutilmoqda</span>
         <dl class="space-y-1.5 text-sm mb-6">
           <div class="flex justify-between"><dt class="text-muted-foreground">Biznes ID:</dt><dd class="text-foreground font-mono">{{ created?.business_code }}</dd></div>
           <div class="flex justify-between"><dt class="text-muted-foreground">Yaratilgan:</dt><dd class="text-foreground">{{ created?.date }}</dd></div>

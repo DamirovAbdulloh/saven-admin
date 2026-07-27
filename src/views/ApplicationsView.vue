@@ -63,8 +63,8 @@ async function setStatus(app: any, status: string) {
         <h3 class="text-foreground font-semibold text-lg">Landing sahifasidan kelgan arizalar</h3>
         <div class="flex items-center gap-4 text-sm">
           <span class="text-muted-foreground">Barchasi: <span class="text-foreground font-semibold">{{ counts.all }}</span></span>
-          <span class="text-muted-foreground">Yangi: <span class="text-[oklch(0.75_0.15_250)] font-semibold">{{ counts.new }}</span></span>
-          <span class="text-muted-foreground">Ko'rib chiqilmoqda: <span class="text-[oklch(0.8_0.14_65)] font-semibold">{{ counts.reviewing }}</span></span>
+          <span class="text-muted-foreground">Yangi: <span class="text-[#89ea5c] font-semibold">{{ counts.new }}</span></span>
+          <span class="text-muted-foreground">Ko'rib chiqilmoqda: <span class="text-[#f7c848] font-semibold">{{ counts.reviewing }}</span></span>
           <span class="text-muted-foreground">Bog'lanildi: <span class="text-primary font-semibold">{{ counts.contacted }}</span></span>
         </div>
       </div>
@@ -105,7 +105,7 @@ async function setStatus(app: any, status: string) {
                   @click="openMenu = openMenu === r.id ? null : r.id"
                   class="inline-flex items-center gap-1"
                 >
-                  <StatusBadge :status="r.status" />
+                  <StatusBadge :status="r.status" variant="application" />
                   <ChevronDown class="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
                 <div

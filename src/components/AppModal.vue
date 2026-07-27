@@ -18,12 +18,12 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
     @click.self="closable && emit('close')"
   >
     <div
       :class="['relative w-full rounded-3xl bg-popover border border-border p-6 md:p-8 max-h-[90vh] overflow-y-auto', maxWidth]"
-      style="box-shadow: 0 24px 80px oklch(0 0 0 / 0.55)"
+      style="box-shadow: 0 24px 80px rgb(0 0 0 / 0.55)"
     >
       <button
         v-if="closable"
@@ -37,7 +37,7 @@ const emit = defineEmits<{ (e: 'close'): void }>()
         <div
           :class="[
             'w-14 h-14 rounded-full flex items-center justify-center',
-            tone === 'red' ? 'bg-destructive' : 'bg-[oklch(0.55_0.15_155)]',
+            tone === 'red' ? 'bg-destructive' : 'bg-[#17b26a]',
           ]"
         >
           <slot name="icon" />

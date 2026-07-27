@@ -74,7 +74,7 @@ async function confirmReject() {
       <RouterLink to="/businesses/applications" class="hover:text-foreground">Arizalar</RouterLink>
       <ChevronRight class="h-4 w-4" />
       <span class="text-foreground">{{ app.business_name }}</span>
-      <div class="ml-auto"><StatusBadge :status="app.status" /></div>
+      <div class="ml-auto"><StatusBadge :status="app.status" variant="application" /></div>
     </div>
 
     <!-- Ariza ma'lumotlari (landing saytida kiritilganlar) -->

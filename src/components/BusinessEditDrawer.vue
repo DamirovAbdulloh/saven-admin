@@ -69,7 +69,7 @@ async function save() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm" @click.self="emit('close')">
+  <div class="fixed inset-0 z-[60] flex justify-end bg-black/40 backdrop-blur-sm" @click.self="emit('close')">
     <div class="w-full max-w-lg h-full bg-popover border-l border-border overflow-y-auto flex flex-col">
       <div class="flex items-start justify-between px-6 py-4 border-b border-border sticky top-0 bg-popover z-10">
         <div>
@@ -149,7 +149,7 @@ async function save() {
           <div>
             <label class="ed-label">Chegirma foizi *</label>
             <input :value="form.discount_percent + '%'" readonly class="ed-input" />
-            <input v-model.number="form.discount_percent" type="range" min="1" max="20" class="w-full accent-[oklch(0.848_0.201_137)] mt-2" />
+            <input v-model.number="form.discount_percent" type="range" min="1" max="20" class="w-full accent-primary mt-2" />
           </div>
           <div><label class="ed-label">Min. xarid summasi (so'm)</label><input v-model.number="form.min_purchase" type="number" class="ed-input" /></div>
         </template>

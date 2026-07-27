@@ -5,7 +5,7 @@ import { Filter, Download, Clock, MapPin, TrendingUp, CalendarDays } from 'lucid
 import PageHeader from '@/components/PageHeader.vue'
 import DateRangePicker from '@/components/DateRangePicker.vue'
 import api from '@/api/client'
-import { axisTicks, gridLines, baseTooltip } from '@/lib/chartTheme'
+import { axisTicks, gridLines, baseTooltip, PRIMARY, PRIMARY_ALT, TOOLTIP_TEXT } from '@/lib/chartTheme'
 import { downloadTablePdf } from '@/lib/pdf'
 import { toast } from '@/composables/useToast'
 
@@ -84,15 +84,15 @@ function fmtBig(v: number) {
 const activityData = computed(() => ({
   labels: (data.value?.activity ?? []).map((a: any) => a.label),
   datasets: [
-    { label: 'Oylik', data: (data.value?.activity ?? []).map((a: any) => a.monthly), backgroundColor: 'oklch(0.75 0.18 155)', borderRadius: 4 },
-    { label: 'Kunlik', data: (data.value?.activity ?? []).map((a: any) => a.daily), backgroundColor: 'oklch(0.848 0.201 137)', borderRadius: 4 },
+    { label: 'Oylik', data: (data.value?.activity ?? []).map((a: any) => a.monthly), backgroundColor: PRIMARY_ALT, borderRadius: 4 },
+    { label: 'Kunlik', data: (data.value?.activity ?? []).map((a: any) => a.daily), backgroundColor: PRIMARY, borderRadius: 4 },
   ],
 }))
 const activityOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'top' as const, align: 'end' as const, labels: { color: 'oklch(0.98 0 0)', font: { size: 11 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
+    legend: { position: 'top' as const, align: 'end' as const, labels: { color: TOOLTIP_TEXT, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } },
     tooltip: baseTooltip,
   },
   scales: { x: { grid: gridLines(false), ticks: axisTicks() }, y: { grid: gridLines(true), ticks: axisTicks() } },

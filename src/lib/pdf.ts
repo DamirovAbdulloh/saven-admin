@@ -8,7 +8,7 @@ import logoUrl from '@/assets/logo-savin.svg'
  * then saves the file straight to the user's computer.
  */
 
-const GREEN: [number, number, number] = [137, 234, 92] // #89EA5C
+const GREEN: [number, number, number] = [149, 240, 109] // #95F06D — dizayndagi asosiy yashil
 const DARK: [number, number, number] = [16, 19, 17]
 const ROW_ALT: [number, number, number] = [243, 248, 240]
 const TEXT: [number, number, number] = [34, 40, 36]

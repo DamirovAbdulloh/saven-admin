@@ -18,9 +18,10 @@ const router = useRouter()
 const STATUS_OPTIONS = ['Muvaffaqiyatli', 'Kutilmoqda', 'Qaytarilgan']
 const METHOD_OPTIONS = ['Click', 'Payme', 'Humo/Uzcard']
 const METHOD_COLORS: Record<string, string> = {
-  Click: 'oklch(0.6 0.19 250)',
-  Payme: 'oklch(0.75 0.18 155)',
-  'Humo/Uzcard': 'oklch(0.8 0.15 75)',
+  // Dizayndagi donut ranglari (Figma · To'lovlar ekrani)
+  Click: '#2e90fa',
+  Payme: '#75e0a7',
+  'Humo/Uzcard': '#fec84b',
 }
 
 const stats = ref({ this_month: '—', last_month: '—', total_count: '—', refund_count: 0, refund_sum: '' })

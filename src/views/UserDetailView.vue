@@ -238,7 +238,7 @@ const referralText = computed(() =>
         </div>
         <div class="h-2 rounded-full bg-muted overflow-hidden">
           <div
-            class="h-full rounded-full bg-[oklch(0.6_0.19_250)]"
+            class="h-full rounded-full bg-[#2e90fa]"
             :style="{ width: member.progress_pct + '%' }"
           />
         </div>
@@ -353,7 +353,7 @@ const referralText = computed(() =>
             <span
               :class="[
                 'h-2.5 w-2.5 rounded-full mt-1.5 shrink-0',
-                p.status === 'Muvaffaqiyatli' ? 'bg-primary' : p.status === 'Qaytarilgan' ? 'bg-destructive' : 'bg-[oklch(0.7_0.15_75)]',
+                p.status === 'Muvaffaqiyatli' ? 'bg-primary' : p.status === 'Qaytarilgan' ? 'bg-destructive' : 'bg-[#fec84b]',
               ]"
             />
             <div>

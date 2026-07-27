@@ -390,7 +390,7 @@ const tabs = [
                 type="radio"
                 :checked="(s === 'Barchasi' && !txStatus) || txStatus === s"
                 @change="txStatus = s === 'Barchasi' ? null : s"
-                class="accent-[oklch(0.848_0.201_137)]"
+                class="accent-primary"
               />
               {{ s }}
             </label>

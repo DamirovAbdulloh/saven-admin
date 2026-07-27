@@ -49,7 +49,7 @@ function copyPhone() {
     />
     <div
       class="absolute inset-y-0 right-0 w-1/2 pointer-events-none"
-      style="background: linear-gradient(to left, transparent, oklch(0.168 0 0) 90%)"
+      style="background: linear-gradient(to left, transparent, #0f0f0f 90%)"
     />
 
     <!-- Help button -->
@@ -69,7 +69,7 @@ function copyPhone() {
     >
       <div
         class="rounded-2xl bg-destructive/95 text-destructive-foreground px-4 py-3 flex items-start gap-3 shadow-lg"
-        style="box-shadow: 0 0 40px oklch(0.65 0.24 25 / 0.4)"
+        style="box-shadow: 0 0 40px rgb(240 68 56 / 0.4)"
       >
         <CircleAlert class="h-5 w-5 shrink-0 mt-0.5" />
         <p class="text-sm flex-1">{{ error }}</p>
@@ -127,7 +127,7 @@ function copyPhone() {
           <button
             type="submit"
             :disabled="loading"
-            class="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-70"
+            class="w-full h-12 rounded-full bg-brand-green text-primary-foreground font-semibold hover:bg-brand-green/90 transition-colors disabled:opacity-70"
           >
             {{ loading ? 'Kutilmoqda...' : 'Kirish' }}
           </button>
@@ -139,7 +139,7 @@ function copyPhone() {
     <div
       v-if="helpOpen"
       @click="helpOpen = false"
-      class="fixed inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+      class="fixed inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
     >
       <div
         @click.stop

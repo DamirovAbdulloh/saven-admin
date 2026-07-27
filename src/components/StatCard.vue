@@ -14,17 +14,19 @@ const props = withDefaults(
   { variant: 'default' },
 )
 
-// Design: list-page stat cards carry a colored border + soft inner glow
+// Design: list-page stat cards carry a colored border + soft inner glow.
+// Ranglar dizayndagi status ranglari bilan bir xil (#17b26a / #f04438 /
+// #2e90fa / #f79009).
 const ring = computed(() => {
   switch (props.variant) {
     case 'premium':
-      return 'border-[oklch(0.5_0.14_145)]/70 shadow-[inset_0_0_28px_oklch(0.5_0.16_145_/_0.14)]'
+      return 'border-[#17b26a]/70 shadow-[inset_0_0_28px_rgb(23_178_106_/_0.14)]'
     case 'overdue':
-      return 'border-[oklch(0.5_0.2_25)]/70 shadow-[inset_0_0_28px_oklch(0.55_0.2_25_/_0.14)]'
+      return 'border-[#f04438]/70 shadow-[inset_0_0_28px_rgb(240_68_56_/_0.14)]'
     case 'new':
-      return 'border-[oklch(0.5_0.18_250)]/70 shadow-[inset_0_0_28px_oklch(0.5_0.18_250_/_0.14)]'
+      return 'border-[#2e90fa]/70 shadow-[inset_0_0_28px_rgb(46_144_250_/_0.14)]'
     case 'pending':
-      return 'border-[oklch(0.55_0.14_65)]/70 shadow-[inset_0_0_28px_oklch(0.55_0.14_65_/_0.14)]'
+      return 'border-[#f79009]/70 shadow-[inset_0_0_28px_rgb(247_144_9_/_0.14)]'
     default:
       return 'border-border'
   }
