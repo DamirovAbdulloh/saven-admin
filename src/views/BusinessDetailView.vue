@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronRight, Check, X, AlertTriangle, Ban, Pencil, Download } from 'lucide-vue-next'
+import { ChevronRight, Check, X, AlertTriangle, Ban, Pencil, Download, Eye, EyeOff, Copy } from 'lucide-vue-next'
 import StatusBadge from '@/components/StatusBadge.vue'
 import AppModal from '@/components/AppModal.vue'
 import BusinessEditDrawer from '@/components/BusinessEditDrawer.vue'
@@ -14,6 +14,19 @@ const router = useRouter()
 
 const biz = ref<any>(null)
 const loading = ref(true)
+
+// Biznes panel paroli — standart holda yashirin, "ko'z" tugmasi bilan ochiladi
+const showPassword = ref(false)
+const passwordToggleTitle = computed(() => (showPassword.value ? 'Yashirish' : "Ko'rsatish"))
+
+async function copyPassword() {
+  try {
+    await navigator.clipboard.writeText(biz.value?.password ?? '')
+    toast.success('Parol nusxalandi')
+  } catch {
+    toast.error('Nusxalab bo\'lmadi')
+  }
+}
 const tab = ref<'info' | 'discount' | 'requests' | 'documents' | 'transactions'>('info')
 
 const transactions = ref<any[]>([])
@@ -241,8 +254,32 @@ const tabs = [
       <section>
         <h3 class="text-foreground font-semibold text-lg mb-4">Kirish ma'lumotlari</h3>
         <div class="grid grid-cols-2 gap-y-4">
-          <div><div class="text-xs text-muted-foreground">Login</div><div class="text-foreground mt-0.5">{{ biz.login }}</div></div>
-          <div><div class="text-xs text-muted-foreground">Parol</div><div class="text-foreground mt-0.5">{{ biz.password }}</div></div>
+          <div><div class="text-xs text-muted-foreground">Login</div><div class="text-foreground mt-0.5">{{ biz.login || '—' }}</div></div>
+          <div>
+            <div class="text-xs text-muted-foreground">Parol</div>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="text-foreground font-mono">
+                {{ biz.password ? (showPassword ? biz.password : '•'.repeat(biz.password.length)) : '—' }}
+              </span>
+              <template v-if="biz.password">
+                <button
+                  @click="showPassword = !showPassword"
+                  :title="passwordToggleTitle"
+                  class="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <EyeOff v-if="showPassword" class="h-4 w-4" />
+                  <Eye v-else class="h-4 w-4" />
+                </button>
+                <button
+                  @click="copyPassword"
+                  title="Nusxalash"
+                  class="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Copy class="h-4 w-4" />
+                </button>
+              </template>
+            </div>
+          </div>
         </div>
       </section>
     </div>

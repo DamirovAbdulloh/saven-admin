@@ -22,6 +22,17 @@ const DISCOUNT_SCOPES = ['Barcha mahsulotlar', 'Minimal xarid summasi']
 const steps = ['Asosiy', 'Kontakt', 'Joylashuv', 'Chegirma', 'Hujjatlar']
 const step = ref(1)
 
+// Login/Telegram/Veb-sayt maydonlarida o'zgarmas qism (@savin.uz, t.me/, www.)
+// inputning yonida turadi — foydalanuvchi faqat o'zgaruvchi qismini yozadi.
+const LOGIN_SUFFIX = '@savin.uz'
+const TELEGRAM_PREFIX = 't.me/'
+const WEBSITE_PREFIX = 'www.'
+
+// "Ro'yxatdan o'tgan sana" uchun chegara: kelajakdagi yoki 1900 dan oldingi
+// sana kiritib bo'lmasin (brauzerning date inputi 67893-yilgacha ruxsat beradi).
+const TODAY_ISO = new Date().toISOString().slice(0, 10)
+const MIN_DATE_ISO = '1900-01-01'
+
 const form = reactive({
   name: '',
   owner: '',
@@ -29,13 +40,16 @@ const form = reactive({
   business_type: 'YaTT',
   registered_at: '',
   description: '',
-  login: '',
+  /** Login'ning faqat o'zgaruvchi qismi — to'liq login: `${login_local}@savin.uz` */
+  login_local: '',
   password: '',
   phone: '+998',
   instagram: '',
-  telegram: '',
+  /** t.me/ dan keyingi qism */
+  telegram_handle: '',
   email: '',
-  website: '',
+  /** www. dan keyingi qism */
+  website_domain: '',
   region: '',
   district: '',
   address: '',
@@ -56,6 +70,18 @@ const fieldErrors = reactive<Record<string, string>>({})
 function clearErrors(keys: string[]) {
   keys.forEach((k) => (fieldErrors[k] = ''))
 }
+
+// Backend'ga yuboriladigan to'liq qiymatlar (o'zgarmas qism qo'shilgan holda).
+// Ixtiyoriy maydonlar bo'sh bo'lsa — faqat prefiks yuborilmasin.
+const fullLogin = computed(() =>
+  form.login_local.trim() ? `${form.login_local.trim().toLowerCase()}${LOGIN_SUFFIX}` : '',
+)
+const fullTelegram = computed(() =>
+  form.telegram_handle.trim() ? `${TELEGRAM_PREFIX}${form.telegram_handle.trim()}` : '',
+)
+const fullWebsite = computed(() =>
+  form.website_domain.trim() ? `${WEBSITE_PREFIX}${form.website_domain.trim()}` : '',
+)
 
 // Viloyatga qarab tumanlar dinamik (landing bilan bir xil manba)
 const districtOptions = computed(() => getDistricts(form.region))
@@ -80,14 +106,30 @@ function isValidEmail(email: string) {
 }
 
 function validateStep1() {
-  clearErrors(['name', 'owner', 'category', 'business_type', 'description', 'login', 'password'])
+  clearErrors(['name', 'owner', 'category', 'business_type', 'registered_at', 'description', 'login', 'password'])
   let ok = true
   if (!form.name.trim()) { fieldErrors.name = 'Biznes nomini kiriting.'; ok = false }
   if (!form.owner.trim()) { fieldErrors.owner = "Mas'ul shaxsning to'liq ismini kiriting."; ok = false }
   if (!form.category) { fieldErrors.category = 'Kategoriyani tanlang.'; ok = false }
   if (!form.business_type) { fieldErrors.business_type = 'Biznes turini tanlang.'; ok = false }
+  // Sana ixtiyoriy, lekin kiritilgan bo'lsa mantiqiy oraliqda bo'lishi shart
+  if (form.registered_at) {
+    if (form.registered_at > TODAY_ISO) {
+      fieldErrors.registered_at = "Sana bugundan keyin bo'lishi mumkin emas."
+      ok = false
+    } else if (form.registered_at < MIN_DATE_ISO) {
+      fieldErrors.registered_at = "Sanani to'g'ri kiriting (1900-yildan keyin)."
+      ok = false
+    }
+  }
   if (!form.description.trim()) { fieldErrors.description = 'Faoliyat haqida qisqacha yozing.'; ok = false }
-  if (!form.login.trim()) { fieldErrors.login = 'Panel loginini kiriting.'; ok = false }
+  if (!form.login_local.trim()) {
+    fieldErrors.login = 'Panel loginini kiriting.'
+    ok = false
+  } else if (!/^[a-z0-9][a-z0-9._-]*$/i.test(form.login_local.trim())) {
+    fieldErrors.login = 'Login faqat harf, raqam va . _ - belgilaridan iborat bo\'lsin.'
+    ok = false
+  }
   if (!form.password || form.password.length < 6) {
     fieldErrors.password = "Parol kamida 6 ta belgidan iborat bo'lishi kerak."
     ok = false
@@ -236,13 +278,13 @@ async function submit() {
       category: form.category,
       business_type: form.business_type,
       description: form.description,
-      login: form.login,
+      login: fullLogin.value,
       password: form.password,
       phone: normalizePhone(form.phone),
       email: form.email,
       instagram: form.instagram,
-      telegram: form.telegram,
-      website: form.website,
+      telegram: fullTelegram.value,
+      website: fullWebsite.value,
       region: getRegionLabel(form.region),
       district: form.district,
       address: form.address,
@@ -334,7 +376,14 @@ async function submit() {
           </div>
           <div>
             <label class="text-xs text-muted-foreground block mb-1.5">Ro'yxatdan o'tgan sana</label>
-            <input v-model="form.registered_at" type="date" class="wz-input" />
+            <input
+              v-model="form.registered_at"
+              type="date"
+              :min="MIN_DATE_ISO"
+              :max="TODAY_ISO"
+              :class="['wz-input', fieldErrors.registered_at && 'wz-invalid']"
+            />
+            <p v-if="fieldErrors.registered_at" class="wz-err">{{ fieldErrors.registered_at }}</p>
           </div>
           <div>
             <label class="text-xs text-muted-foreground block mb-1.5">Biznes haqida qisqacha *</label>
@@ -348,7 +397,11 @@ async function submit() {
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Login *</label>
-              <input v-model="form.login" placeholder="example@savin.uz" :class="['wz-input', fieldErrors.login && 'wz-invalid']" />
+              <!-- @savin.uz o'zgarmas — foydalanuvchi faqat chap qismini yozadi -->
+              <div :class="['wz-group', fieldErrors.login && 'wz-invalid']">
+                <input v-model="form.login_local" placeholder="example" class="wz-group-input" />
+                <span class="wz-affix">{{ LOGIN_SUFFIX }}</span>
+              </div>
               <p v-if="fieldErrors.login" class="wz-err">{{ fieldErrors.login }}</p>
             </div>
             <div>
@@ -381,12 +434,20 @@ async function submit() {
             </div>
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Telegram kanal</label>
-              <input v-model="form.telegram" placeholder="t.me/biznes_uz" class="wz-input" />
+              <!-- t.me/ o'zgarmas prefiks -->
+              <div class="wz-group">
+                <span class="wz-affix wz-affix-left">{{ TELEGRAM_PREFIX }}</span>
+                <input v-model="form.telegram_handle" placeholder="biznes_uz" class="wz-group-input" />
+              </div>
             </div>
           </div>
           <div>
             <label class="text-xs text-muted-foreground block mb-1.5">Veb-sayt</label>
-            <input v-model="form.website" placeholder="www.biznes.uz" class="wz-input" />
+            <!-- www. o'zgarmas prefiks -->
+            <div class="wz-group">
+              <span class="wz-affix wz-affix-left">{{ WEBSITE_PREFIX }}</span>
+              <input v-model="form.website_domain" placeholder="biznes.uz" class="wz-group-input" />
+            </div>
           </div>
           <div class="rounded-xl bg-primary/10 border border-primary/30 p-3 flex items-center gap-2 text-xs text-primary mt-2">
             <Info class="h-4 w-4 shrink-0" />
@@ -602,6 +663,7 @@ async function submit() {
               <div class="flex justify-between"><dt class="text-muted-foreground">Kategoriya:</dt><dd class="text-foreground">{{ form.category }}</dd></div>
               <div class="flex justify-between"><dt class="text-muted-foreground">Biznes turi:</dt><dd class="text-foreground">{{ form.business_type }}</dd></div>
               <div class="flex justify-between"><dt class="text-muted-foreground">Mas'ul shaxs:</dt><dd class="text-foreground">{{ form.owner }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Login:</dt><dd class="text-foreground">{{ fullLogin }}</dd></div>
             </dl>
           </div>
           <div class="rounded-xl bg-muted/40 border border-border p-4">
@@ -708,6 +770,46 @@ textarea.wz-input {
   height: auto;
   padding: 0.5rem 0.75rem;
 }
+/* O'zgarmas prefiks/suffiks bilan input guruhi (@savin.uz, t.me/, www.) */
+.wz-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  background: var(--color-muted);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+.wz-group:focus-within {
+  box-shadow: 0 0 0 2px var(--color-ring);
+}
+.wz-group-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: transparent;
+  border: none;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+}
+.wz-group-input:focus {
+  outline: none;
+}
+.wz-affix {
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+  white-space: nowrap;
+  user-select: none;
+}
+/* Chapdagi prefiks uchun o'ng tomonda ajratuvchi chiziq */
+.wz-affix-left {
+  border-right: 1px solid var(--color-border);
+  padding-right: 0.625rem;
+}
+
 /* Xato holatidagi maydon — landing formasidagi qizil chegara bilan bir xil */
 .wz-invalid {
   border-color: var(--color-destructive);
