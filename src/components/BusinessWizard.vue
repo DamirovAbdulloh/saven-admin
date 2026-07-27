@@ -27,6 +27,7 @@ const step = ref(1)
 const LOGIN_SUFFIX = '@savin.uz'
 const TELEGRAM_PREFIX = 't.me/'
 const WEBSITE_PREFIX = 'www.'
+const PHONE_PREFIX = '+998'
 
 // "Ro'yxatdan o'tgan sana" uchun chegara: kelajakdagi yoki 1900 dan oldingi
 // sana kiritib bo'lmasin (brauzerning date inputi 67893-yilgacha ruxsat beradi).
@@ -43,7 +44,8 @@ const form = reactive({
   /** Login'ning faqat o'zgaruvchi qismi — to'liq login: `${login_local}@savin.uz` */
   login_local: '',
   password: '',
-  phone: '+998',
+  /** +998 dan keyingi 9 ta raqam (faqat raqamlar saqlanadi) */
+  phone_digits: '',
   instagram: '',
   /** t.me/ dan keyingi qism */
   telegram_handle: '',
@@ -92,15 +94,41 @@ watch(
   },
 )
 
+// ---- Telefon raqami: +998 prefiksi bilan, 9 ta raqam ----
+// Ko'rinishi "90 123 45 67" (2-3-2-2), saqlanadigan qiymat esa faqat raqamlar.
+
+/** Raqamlar qatorini "90 123 45 67" ko'rinishiga keltiradi */
+function formatPhone(digits: string) {
+  const d = digits.slice(0, 9)
+  return [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(' ')
+}
+
+const phoneDisplay = computed(() => formatPhone(form.phone_digits))
+
+/** Kiritilganda raqam bo'lmagan belgilar tashlanadi va 9 ta bilan cheklanadi */
+function extractPhoneDigits(raw: string) {
+  let d = raw.replace(/\D/g, '')
+  // To'liq raqam (+998 90 123 45 67) nusxalab qo'yilsa — davlat kodini olib
+  // tashlaymiz. Faqat 9 tadan oshganda, chunki "99 812 34 56" ham haqiqiy
+  // raqam bo'lishi mumkin (99 — operator kodi).
+  if (d.length > 9 && d.startsWith('998')) d = d.slice(3)
+  return d.slice(0, 9)
+}
+
+function onPhoneInput(e: Event) {
+  const el = e.target as HTMLInputElement
+  form.phone_digits = extractPhoneDigits(el.value)
+  // Inputni formatlangan ko'rinishga qaytaramiz (v-model ishlatilmagani uchun)
+  el.value = formatPhone(form.phone_digits)
+}
+
+/** Backend'ga yuboriladigan to'liq raqam: +998901234567 */
+const fullPhone = computed(() =>
+  form.phone_digits ? `${PHONE_PREFIX}${form.phone_digits}` : '',
+)
+
 // ---- Validatsiya (landing ArizaQoldiring.vue bilan bir xil qoidalar) ----
 
-function normalizePhone(phone: string) {
-  const digits = phone.replace(/\D/g, '').replace(/^998/, '')
-  return `+998${digits}`
-}
-function isValidUzPhone(phone: string) {
-  return /^\+998\d{9}$/.test(normalizePhone(phone))
-}
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
@@ -140,8 +168,8 @@ function validateStep1() {
 function validateStep2() {
   clearErrors(['phone', 'email'])
   let ok = true
-  if (!isValidUzPhone(form.phone)) {
-    fieldErrors.phone = "Telefon raqamini to'g'ri kiriting (+998 XX XXX XX XX)."
+  if (form.phone_digits.length !== 9) {
+    fieldErrors.phone = "Telefon raqamini to'liq kiriting (9 ta raqam)."
     ok = false
   }
   if (!form.email.trim() || !isValidEmail(form.email)) {
@@ -280,7 +308,7 @@ async function submit() {
       description: form.description,
       login: fullLogin.value,
       password: form.password,
-      phone: normalizePhone(form.phone),
+      phone: fullPhone.value,
       email: form.email,
       instagram: form.instagram,
       telegram: fullTelegram.value,
@@ -417,7 +445,19 @@ async function submit() {
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-xs text-muted-foreground block mb-1.5">Telefon raqami *</label>
-              <input v-model="form.phone" placeholder="+998 90 000 00 00" :class="['wz-input', fieldErrors.phone && 'wz-invalid']" />
+              <!-- +998 o'zgarmas, keyingi qismi 9 ta raqam: "90 123 45 67" -->
+              <div :class="['wz-group', fieldErrors.phone && 'wz-invalid']">
+                <span class="wz-affix wz-affix-left">{{ PHONE_PREFIX }}</span>
+                <input
+                  :value="phoneDisplay"
+                  @input="onPhoneInput"
+                  type="tel"
+                  inputmode="numeric"
+                  maxlength="12"
+                  placeholder="90 123 45 67"
+                  class="wz-group-input"
+                />
+              </div>
               <p v-if="fieldErrors.phone" class="wz-err">{{ fieldErrors.phone }}</p>
             </div>
             <div>
@@ -669,7 +709,7 @@ async function submit() {
           <div class="rounded-xl bg-muted/40 border border-border p-4">
             <div class="text-sm font-semibold text-foreground mb-3">2. Kontakt</div>
             <dl class="space-y-1.5 text-sm">
-              <div class="flex justify-between"><dt class="text-muted-foreground">Telefon:</dt><dd class="text-foreground">{{ form.phone || '—' }}</dd></div>
+              <div class="flex justify-between"><dt class="text-muted-foreground">Telefon:</dt><dd class="text-foreground">{{ form.phone_digits ? `${PHONE_PREFIX} ${phoneDisplay}` : '—' }}</dd></div>
               <div class="flex justify-between"><dt class="text-muted-foreground">Email:</dt><dd class="text-foreground">{{ form.email || '—' }}</dd></div>
               <div class="flex justify-between"><dt class="text-muted-foreground">Instagram:</dt><dd class="text-foreground">{{ form.instagram || '—' }}</dd></div>
             </dl>
