@@ -46,7 +46,7 @@ function next() {
     <div>
       Sahifa
       <span class="inline-block px-2.5 py-1.5 rounded-md bg-muted text-foreground mx-1">{{ page }}</span>
-      dan {{ totalPages().toLocaleString() }}
+      / {{ totalPages().toLocaleString() }}
     </div>
   </div>
 </template>
