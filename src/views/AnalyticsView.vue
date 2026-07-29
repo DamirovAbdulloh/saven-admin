@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import { Filter, Download, Clock, MapPin, TrendingUp, CalendarDays } from 'lucide-vue-next'
+import { Filter, Download, CalendarDays } from 'lucide-vue-next'
 import PageHeader from '@/components/PageHeader.vue'
 import DateRangePicker from '@/components/DateRangePicker.vue'
 import api from '@/api/client'
@@ -308,22 +308,22 @@ const hoveredCat = ref<number | string | null>(null)
       </div>
     </div>
 
-    <!-- Insight cards -->
+    <!-- Insight cards — dizayndagidek: tepada sarlavha, keyin qiymat -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="rounded-2xl bg-card border border-border p-5">
-        <Clock class="h-5 w-5 text-primary mb-2" />
+        <div class="text-xs text-muted-foreground mb-1">Eng ko'p QR skanerlangan vaqt</div>
         <div class="text-2xl font-bold text-foreground">{{ data.insights.peak_hour }}</div>
-        <div class="text-xs text-muted-foreground mt-1">Kechki soatlarda a'zolar faolroq</div>
+        <div class="text-xs text-muted-foreground mt-2">Kechki soatlarda a'zolar faolroq</div>
       </div>
       <div class="rounded-2xl bg-card border border-border p-5">
-        <TrendingUp class="h-5 w-5 text-primary mb-2" />
+        <div class="text-xs text-muted-foreground mb-1">Eng ko'p borilgan kategoriya</div>
         <div class="text-2xl font-bold text-foreground">{{ data.insights.top_category }}</div>
-        <div class="text-xs text-muted-foreground mt-1">Bu oy {{ data.insights.top_category_visits }} marta borildi</div>
+        <div class="text-xs text-muted-foreground mt-2">Bu oy {{ data.insights.top_category_visits }} marta borildi</div>
       </div>
       <div class="rounded-2xl bg-card border border-border p-5">
-        <MapPin class="h-5 w-5 text-primary mb-2" />
+        <div class="text-xs text-muted-foreground mb-1">Eng ko'p a'zo bo'lgan shahar/viloyat</div>
         <div class="text-2xl font-bold text-foreground">{{ data.insights.top_city }}</div>
-        <div class="text-xs text-muted-foreground mt-1">{{ data.insights.top_city_members }} faol a'zo shu yerda</div>
+        <div class="text-xs text-muted-foreground mt-2">{{ data.insights.top_city_members }} faol a'zo shu yerda</div>
       </div>
     </div>
   </div>

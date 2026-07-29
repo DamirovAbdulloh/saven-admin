@@ -25,7 +25,7 @@ function next() {
     <div>
       Natija
       <span class="inline-block px-2.5 py-1.5 rounded-md bg-muted text-foreground mx-1">{{ count.toLocaleString() }}</span>
-      dan
+      ta
     </div>
     <div class="flex items-center gap-2">
       <button
