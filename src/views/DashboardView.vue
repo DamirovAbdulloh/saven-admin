@@ -117,7 +117,10 @@ function goToAlert(alert: any) {
   showAlerts.value = false
   // Biznesga bog'langan bildirishnoma (masalan chegirma foizini o'zgartirish
   // so'rovi) bosilganda o'sha biznesning detail sahifasi ochiladi.
-  if (alert.business_id) {
+  if (alert.member_id) {
+    // Yangi a'zo haqidagi bildirishnoma -> o'sha foydalanuvchi sahifasi
+    router.push(`/users/${alert.member_id}`)
+  } else if (alert.business_id) {
     router.push(`/businesses/${alert.business_id}`)
   } else if (alert.kind === 'business_application') {
     // Landing arizasi haqidagi bildirishnoma -> Arizalar bo'limi
