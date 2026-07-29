@@ -45,6 +45,24 @@ async function loadRequests() {
   requests.value = data
 }
 
+// --- Biznes egasi o'z panelida yaratgan chegirmalar ---
+const ownerDiscounts = ref<any[]>([])
+const discountsLoading = ref(false)
+const discountsLinked = ref(true)
+
+async function loadDiscounts() {
+  discountsLoading.value = true
+  try {
+    const { data } = await api.get(`/businesses/${route.params.id}/discounts/`)
+    ownerDiscounts.value = data.results ?? []
+    discountsLinked.value = data.linked !== false
+  } catch {
+    ownerDiscounts.value = []
+  } finally {
+    discountsLoading.value = false
+  }
+}
+
 async function approveRequest(r: any) {
   if (reqActing.value) return
   reqActing.value = true
@@ -110,6 +128,7 @@ onMounted(load)
 watch(tab, (t) => {
   if (t === 'transactions') loadTransactions()
   if (t === 'requests') loadRequests()
+  if (t === 'discount') loadDiscounts()
 })
 
 const editOpen = ref(false)
@@ -285,15 +304,57 @@ const tabs = [
     </div>
 
     <!-- Discount tab -->
-    <div v-if="tab === 'discount'" class="rounded-2xl bg-card border border-border p-6">
-      <h3 class="text-foreground font-semibold text-lg mb-4">Xizmat turlari bo'yicha chegirma foizlari</h3>
-      <div class="rounded-xl bg-muted/40 border border-border p-4 flex items-center justify-between">
-        <div>
-          <div class="text-foreground font-medium">{{ biz.discount_scope }}</div>
-          <div class="text-xs text-muted-foreground mt-0.5">Standart chegirma · Min. xarid: {{ biz.min_purchase_fmt }}</div>
+    <div v-if="tab === 'discount'" class="rounded-2xl bg-card border border-border p-6 space-y-6">
+      <!-- Asosiy (shartnomadagi) chegirma -->
+      <section>
+        <h3 class="text-foreground font-semibold text-lg mb-4">Xizmat turlari bo'yicha chegirma foizlari</h3>
+        <div class="rounded-xl bg-muted/40 border border-border p-4 flex items-center justify-between">
+          <div>
+            <div class="text-foreground font-medium">{{ biz.discount_scope }}</div>
+            <div class="text-xs text-muted-foreground mt-0.5">Standart chegirma · Min. xarid: {{ biz.min_purchase_fmt }}</div>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-primary/15 text-primary px-3 py-1 text-sm font-semibold">{{ biz.discount_percent }}%</span>
         </div>
-        <span class="inline-flex items-center rounded-full bg-primary/15 text-primary px-3 py-1 text-sm font-semibold">{{ biz.discount_percent }}%</span>
-      </div>
+      </section>
+
+      <!-- Biznes egasi o'z panelida yaratgan chegirmalar -->
+      <section>
+        <h3 class="text-foreground font-semibold text-lg mb-1">Biznes egasi yaratgan chegirmalar</h3>
+        <p class="text-xs text-muted-foreground mb-4">Biznes o'z panelida qo'shgan chegirma turlari</p>
+
+        <div v-if="discountsLoading" class="text-sm text-muted-foreground">Yuklanmoqda...</div>
+
+        <div v-else-if="!ownerDiscounts.length" class="rounded-xl bg-muted/40 border border-border p-6 text-center">
+          <p class="text-sm text-muted-foreground">
+            {{ discountsLinked ? 'Biznes hali chegirma qo\'shmagan' : 'Biznes paneli hali ochilmagan' }}
+          </p>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div
+            v-for="d in ownerDiscounts"
+            :key="d.id"
+            class="rounded-xl bg-muted/40 border border-border p-4"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-foreground font-medium">{{ d.category }}</div>
+                <div v-if="d.description" class="text-xs text-muted-foreground mt-0.5">{{ d.description }}</div>
+              </div>
+              <span class="shrink-0 text-xl font-bold text-primary">{{ d.percent }}%</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 text-xs">
+              <span class="text-muted-foreground">
+                <template v-if="Number(d.min_purchase) > 0">
+                  Min. xarid: {{ Number(d.min_purchase).toLocaleString('en-US').replace(/,/g, ' ') }} so'm ·
+                </template>
+                {{ d.usage_count }} marta ishlatilgan
+              </span>
+              <StatusBadge :status="d.is_active ? 'Faol' : 'Nofaol'" />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- So'rovlar tab: biznes panelidan kelgan so'rovlar -->
