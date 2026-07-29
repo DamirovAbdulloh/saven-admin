@@ -174,7 +174,7 @@ function onCreated() {
             />
           </div>
 
-          <div class="relative">
+          <div class="relative" v-click-outside="() => (filterOpen = false)">
             <button
               @click="filterOpen = !filterOpen"
               :class="[
@@ -197,7 +197,7 @@ function onCreated() {
 
               <!-- Category multi-select -->
               <div class="text-xs text-muted-foreground mb-2">Kategoriya</div>
-              <div class="relative mb-3">
+              <div class="relative mb-3" v-click-outside="() => (catDropdownOpen = false)">
                 <button
                   @click="catDropdownOpen = !catDropdownOpen"
                   class="w-full h-9 rounded-lg bg-muted border border-border px-3 text-sm text-foreground flex items-center justify-between"

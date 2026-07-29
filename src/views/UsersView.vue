@@ -132,7 +132,7 @@ function openProfile(row: any) {
           </div>
 
           <!-- Filter popover -->
-          <div class="relative">
+          <div class="relative" v-click-outside="() => (filterOpen = false)">
             <button
               @click="filterOpen = !filterOpen"
               :class="[

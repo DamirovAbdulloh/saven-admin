@@ -240,7 +240,7 @@ const topMethod = computed(() => methods.value.slice().sort((a, b) => b.pct - a.
               class="w-full pl-9 h-10 rounded-xl bg-muted border border-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-          <div class="relative">
+          <div class="relative" v-click-outside="() => (filterOpen = false)">
             <button
               @click="filterOpen = !filterOpen"
               :class="[
@@ -279,7 +279,7 @@ const topMethod = computed(() => methods.value.slice().sort((a, b) => b.pct - a.
               </div>
 
               <div class="text-xs text-muted-foreground mb-2">Sana oralig'i</div>
-              <div class="relative mb-4">
+              <div class="relative mb-4" v-click-outside="() => (rangeOpen = false)">
                 <button
                   @click="rangeOpen = !rangeOpen"
                   class="w-full h-9 rounded-lg bg-muted border border-border px-3 text-xs text-foreground flex items-center justify-between"

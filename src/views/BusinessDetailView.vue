@@ -372,7 +372,7 @@ const tabs = [
     <div v-if="tab === 'transactions'" class="rounded-2xl bg-card border border-border p-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-foreground font-semibold text-lg">Tranzaksiyalar ro'yxati</h3>
-        <div class="relative">
+        <div class="relative" v-click-outside="() => (txFilterOpen = false)">
           <button
             @click="txFilterOpen = !txFilterOpen"
             class="rounded-xl bg-muted hover:bg-accent px-4 h-9 text-sm flex items-center gap-1.5 text-foreground"

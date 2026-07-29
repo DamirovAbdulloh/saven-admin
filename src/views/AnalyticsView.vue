@@ -113,7 +113,7 @@ const hoveredCat = ref<number | string | null>(null)
   <div v-if="data" class="p-6 md:p-8 space-y-6">
     <PageHeader title="Analitika" subtitle="Platforma faoliyati bo'yicha chuqur tahlil">
       <template #actions>
-        <div class="relative">
+        <div class="relative" v-click-outside="() => (filterOpen = false)">
           <button
             @click="filterOpen = !filterOpen"
             class="rounded-xl bg-primary/15 text-primary border border-primary/40 px-4 h-10 text-sm flex items-center gap-1.5"
@@ -126,7 +126,7 @@ const hoveredCat = ref<number | string | null>(null)
               <button @click="clearFilter" class="text-xs text-muted-foreground hover:text-foreground">Filtrni tozalash</button>
             </div>
             <div class="text-xs text-muted-foreground mb-2">Sana oralig'i</div>
-            <div class="relative mb-3">
+            <div class="relative mb-3" v-click-outside="() => (rangeOpen = false)">
               <button
                 @click="rangeOpen = !rangeOpen"
                 class="w-full h-9 rounded-lg bg-muted border border-border px-3 text-xs text-foreground flex items-center justify-between"
